@@ -19,7 +19,8 @@ def get_info_hash_torrent_file(filedata):
 def get_info_hash_magnet(magnet):
 	if not magnet.startswith('magnet:?'):
 		return None
-	xt = urlparse.parse_qs(magnet[len('magnet:?'):])['xt'][0]
+	params = urlparse.parse_qs(magnet[len('magnet:?'):])
+	xt = params['xt'][0]
 	infohash = None
 	if xt.startswith('urn:btih:'):
 		infohash = xt[len('urn:btih:'):]
@@ -30,6 +31,16 @@ def get_info_hash_magnet(magnet):
 		return None
 	return infohash.upper()
 
+def get_name_magnet(magnet):
+	if not magnet.startswith('magnet:?'):
+		return None
+	params = urlparse.parse_qs(magnet[len('magnet:?'):])
+	if 'dn' in params.keys():
+		name = params['dn'][0]
+	else:
+		name = None
+	return name
+
 def calculate_hashes(engine):
 	torrent_qry = select([Torrents])\
 			      .where(or_(Torrents.c.infohash == None,
@@ -37,15 +48,24 @@ def calculate_hashes(engine):
 	update_qry = Torrents.update()\
 			     .values(infohash=bindparam('newhash'))\
 				 .where(Torrents.c.torrentid == bindparam('tid'))
+
+	update_name_qry = Torrents.update()\
+			     .values(infohash=bindparam('newhash'),name=bindparam('name'))\
+				 .where(Torrents.c.torrentid == bindparam('tid'))
 	torrents = engine.execute(torrent_qry)
 	for t in torrents:
 		print "getting hash"
 		infohash = None
+		name = None
 		if t.torrent != None and t.torrent != "":
 			infohash = get_info_hash_torrent_file(t.torrent)
 		elif t.magnet_link != None and t.magnet_link != "":
 			infohash = get_info_hash_magnet(t.magnet_link)
-		engine.execute(update_qry,newhash=infohash,tid=t.torrentid)
+			name = get_name_magnet(t.magnet_link)
+		if name:
+			engine.execute(update_name_qry,newhash=infohash,tid=t.torrentid,name=name)
+		else:
+			engine.execute(update_qry,newhash=infohash,tid=t.torrentid)
 
 def main():
 	queue_size = 50
@@ -85,6 +105,7 @@ def main():
 					print "Completed " + infohash
 					s3link = store_file(infohash)
 					rt.close(infohash)
+					rt.erase(infohash)
 					engine.execute(complete_qry, infohash=infohash,
 							s3link=s3link)
 				else:
@@ -132,23 +153,25 @@ def main():
 			elif t.magnet_link:
 				rt.add_torrent_magnet(t.magnet_link)
 
-		if active_torrents:
+		if active_queue:
 			# remove stale torrents
-			check_qry = select([Torrents.c.infohash])\
+			check_qry = select([Torrents,Jobs])\
 						.select_from(Torrents.outerjoin(Jobs,\
-							Jobs.c.completed == None))\
+			               and_(Jobs.c.torrentid == Torrents.c.torrentid,\
+						        Jobs.c.completed == None)))\
 						.where(Torrents.c.infohash.in_(active_queue))
-
 			stale_torrents = engine.execute(check_qry)
+			print list(stale_torrents)
 			stale_hashes = [t.infohash for t in stale_torrents]
 			active_torrents_tmp = []
-			for t in active_torrents:
+			for t in active_queue:
 				if t in stale_hashes:
 					print "Remove stale torrent " + t
 					rt.close(t)
+					rt.erase(t)
 				else:
 					active_torrents_tmp.append(t)
-			active_torrents = active_torrents_tmp
+			active_queue = active_torrents_tmp
 			
 if __name__ == '__main__':
 	main()
