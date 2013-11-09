@@ -1,4 +1,7 @@
-<?php require('controller.class.php'); ?>
+<?php 
+require('controller.class.php'); 
+$user = Controller::authenticate();
+?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -34,10 +37,7 @@
               </tr>
             </thead>
             <tbody>
-                <?php 
-                    $user = User::createUser('nigga@nigga.com', 'poop');
-                    $jobby = Job::createJob(0,$user->userId, 69, 1);
-                    $user->getActiveJobs(); ?>
+
                     <?php foreach($user->jobs as $job): ?>
                     <?php if($job->completed): ?>
                         <tr class="success">

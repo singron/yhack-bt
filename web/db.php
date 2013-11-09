@@ -1,4 +1,3 @@
-
 <?php
 /*
 PHP REST SQL: A HTTP REST interface to relational databases
@@ -61,10 +60,11 @@ class Database {
      * @param str[] config
      */
     function connect($config = "") {
-                $config = array("server"=>"localhost", "database"=>"yhack", "username"=>"yhack", "password"=>"yhack");
+                $config = array("server"=>"localhost", "port"=>"5432", "database"=>"moo", "username"=>"postgres", "password"=>"postgres");
                 $connString = sprintf(
-                        'host=%s dbname=%s user=%s password=%s',
+                        'host=%s port=%s dbname=%s user=%s password=%s',
                         $config['server'],
+						$config['port'],
                         $config['database'],
                         $config['username'],
                         $config['password']
@@ -102,9 +102,6 @@ class Database {
     function getRow($table, $where) {
 
 		$table = pg_escape_string($table);
-          $where = str_replace(',',"','",$where);
-          $where = str_replace("''","'",$where);
-
         $result = pg_query(sprintf('SELECT * FROM %s WHERE %s', $table, $where));   
             if ($result) {
                 $this->lastQueryResultResource = $result;
@@ -172,10 +169,8 @@ class Database {
      */
     function updateRow($table, $values, $where) {
         # translate from MySQL syntax :)
-        $values = preg_replace('/"/','\'',$values);
-        $values = preg_replace('/`/','"',$values); 
-        array_map( "pg_escape_string", $values );
         $where = pg_escape_string($where);
+    	$where = str_replace("''","'",$where);
         $qs = sprintf('UPDATE %s SET %s WHERE %s', $table, $values, $where);
         $result = pg_query($this->_db, $qs);       
         if ($result) {
@@ -206,12 +201,13 @@ class Database {
                 $names = pg_escape_string( $names );
                 $values = pg_escape_string( $values );
           }
-
+		  
           $values = str_replace("''''","'",$values);
           $values = str_replace("'''","'",$values);
           $values = str_replace("''","'",$values);
           $values = str_replace("''","'",$values);
 
+		
 
 		  
         $qs = sprintf(
@@ -222,7 +218,7 @@ class Database {
                         $returning
                 );
 
-        $result = pg_query($qs); #or die(pg_last_error());
+        $result = pg_query($this->_db, $qs); #or die(pg_last_error());
         $lastInsertPKeys = pg_fetch_row($result);
         $this->lastInsertPKeys = $lastInsertPKeys;
                 

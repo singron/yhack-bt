@@ -7,6 +7,8 @@ class User {
 	public $hash;
 	public $salt;
 	public $credit;
+	public $sessionId;
+	public $loggedIn = false;
 	public $jobs = array();
 
 	public function initWithRecord($record){
@@ -15,20 +17,23 @@ class User {
 		$this->hash = $record->hash;
 		$this->salt = $record->salt;
 		$this->credit = $record->credit;
+		$this->sessionId = $record->sessionid;
 	}
 	
 	public static function createUser($email, $password, $credit = 0){
 		$u = new User();
 		$u->salt = uniqid(mt_rand(), true);
-		$u->hash = crypt($u->salt . $password);
+		$u->hash = md5($password . $u->salt);
 		$u->credit = $credit;
 		$u->email = $email;
 		$db = Database::getDB();
-		$r = $db->insertRow("Users", "email, hash, salt", "'$u->email', '$u->hash' , '$u->salt'" , 'userId');
+		$r = $db->insertRow("Users", "email, hash, salt", "'$u->email', '$u->hash' , '$u->salt'" , 'userId', false);
 		$u->userId = $db->lastInsertId();
 		
 		return $u;
 	}
+	
+	
 	
 	public static function existsUserWithEmail($email){
 		$db = Database::getDB();
@@ -40,7 +45,7 @@ class User {
 	}
 	public static function getUserByEmail($email){
 		$db = Database::getDB();
-		$db->getRow( "Users", "email = $email" );
+		$db->getRow( "Users", "email = '$email'" );
 		return new User($db->nextRecord());
 	}
 	
@@ -68,6 +73,16 @@ class User {
 		}
 		return $this->jobs;
 	}
+	
+	public function checkLogin($pw){
+		return (md5($pw . $this->salt) == $this->hash);
+	}
+	
+	public function setSessionId($sid){
+		$db = Database::getDB();
+		$this->sessionId = $sid;
+		$db->updateRow("Users", "sessionId = '$this->sessionId'", "userId = '$this->userId'");	
+	}
 
 	public function addCredit($amount){
 		$this->credit += $amount;
@@ -81,6 +96,10 @@ class User {
 		foreach ($this->jobs as $job){
 			$job->update();
 		}
+	}
+	
+	public function hashPassword($pw){
+		return md5($pw . $this->salt);
 	}
 
 }

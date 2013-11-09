@@ -1,12 +1,44 @@
 <?
-	include_once('/var/www/mikey/db.php');
-	include_once('/var/www/mikey/user.class.php');
-	include_once('/var/www/mikey/job.class.php');
-	include_once('/var/www/mikey/torrent.class.php');
+	include_once('db.php');
+	include_once('user.class.php');
+	include_once('job.class.php');
+	include_once('torrent.class.php');
 	
 	class Controller {
 		public static function getUser($id){
 			return User::getUser($id);
+		}
+		
+		public static function loginUser($user, $password=-1){
+			if ($password == -1) $password = $_COOKIE['hash'];
+			session_start();
+			if ($password == $user->hash || $user->checkLogin($password)){
+				if ($user->sessionId == ""){
+					session_start();
+					$user->setSessionId(session_id());
+				 	setcookie('email', $user->email); 
+				 	setcookie('hash', $user->hash); 
+					$user->loggedIn = true;
+				}
+				else {
+					session_id($user->sessionId);
+					if ($user->sessionId != session_id()){
+						$user->loggedIn = false;
+						$past = time() - 100; 
+					 	setcookie("email", 'gone', $past); 
+					 	setcookie("hash", 'gone', $past); 
+					}
+					else {
+						session_id($user->sessionId);
+						$user->loggedIn = true;
+					 	setcookie('email', $user->email); 
+					 	setcookie('hash', $user->hash); 
+					}
+				}
+			}
+			else {
+				header("Location: login.php");
+			}
 		}
 		
 		public static function getUserAndAvailableJobs($id){
@@ -35,6 +67,12 @@
 			$user = User::existsUserWithEmail($email);
 			if ($user == 1) return -1;
 			$user = User::createUser($email, $password);
+			session_start();
+			$user->setSessionId(session_id());
+		 	setcookie('email', $user->email); 
+		 	setcookie('hash', $user->hash); 
+			$user->loggedIn = true;
+		
 			return json_encode($user);
 		}
 		
@@ -74,8 +112,26 @@
 				// Error
 		}
 		
+		public static function authenticate($u = NULL, $password = NULL){
+			if (isset($_COOKIE['email'])){
+				if (!$u) $u = User::getUserByEmail($_COOKIE['email']);
+				Controller::loginUser($u, $_COOKIE['hash']);
+				return $u;
+			}
+			else {
+				if ($u && $password){
+					if ($u->checkLogin($password)){
+					 	setcookie('email', $user->email); 
+					 	setcookie('hash', $user->hash); 
+						Controller::loginUser($u);
+					}
+					else {
+						header("Location: login.php");
+					}
+				}
+				else header("Location: login.php");
+			}
+		}
 	}
-	
-	
 
 ?>

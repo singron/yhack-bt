@@ -2,7 +2,7 @@
 	require("controller.class.php");
 	$e = mt_rand(65,95) . mt_rand(65,95) . mt_rand(65,95) . mt_rand(65,95) .mt_rand(65,95);
 	$user1 = User::createUser($e, "luigi193");
-	$torrent = Torrent::createTorrent( "This Torrent", "/var/www/mikey/db.php" );
+	$torrent = Torrent::createTorrent( "This Torrent", "./db.php" );
 	$job1 = Job::createJob( $torrent->torrentId, $user1->userId, 20 );
 	
 	assert( $user1->email == $e);

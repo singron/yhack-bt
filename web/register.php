@@ -2,16 +2,12 @@
 require('controller.class.php');
 
 $regerror = false;
-$nouser = false;
 $noemail = false;
 $nopassword = false;
 $nopasswordconfirm = false;
 $passwordmismatch = false;
+$emailtaken = false;
 if(isset($_POST['submitbutton'])){
-    if(!isset($_POST['username'])){
-        $regerror = true;
-        $nouser = true;
-    }
     if(!isset($_POST['email'])){
         $regerror = true;
         $noemail = true;
@@ -29,14 +25,10 @@ if(isset($_POST['submitbutton'])){
         $passwordmismatch = true;
     }
     
-    if (User::existsUserWithEmail($_POST['email']) == 1){
-			 $regerror = true;
-	 }
-	 
-
-    
     if(!$regerror){
 		$u = Controller::createUser($_POST['email'], $_POST['password']);
+        if ($u == -1) { $regerror = true; $emailtaken = true; } 
+        else
         header('Location: index.php?&registered=true');
     }
 }
@@ -67,14 +59,9 @@ if(isset($_POST['submitbutton'])){
 
     <div class="container">
         <?php if($regerror): ?>
-        <div class="bs-callout bs-callout-danger alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert">x</button>
-<<<<<<< HEAD
+        <div class="bs-callout bs-callout-danger">
             <ul>
                 <?php 
-                if($nouser){
-                    echo '<li>No username specified.</li>';
-                }
                 if($noemail){
                     echo '<li>No email given.</li>';
                 }
@@ -87,17 +74,16 @@ if(isset($_POST['submitbutton'])){
                 if($passwordmismatch){
                     echo '<li>Passwords do not match.</li>';
                 }
+                if($emailtaken){
+                    echo '<li>That Email address is already in use.</li>';
+                }
                 ?>
             </ul>
-=======
-            You suck
->>>>>>> dcdf41bf6e7c249ef8b8b8f6f4853c2f88df39ac
         </div>
         <?php endif; ?>
         <form class="form-register" action="register.php" method="post">
             <h2 class="form-register-heading">Register</h2>
-            <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
-            <input type ="text" class="form-control" placeholder="Email Address" name="email" required>
+            <input type ="text" class="form-control" placeholder="Email Address" name="email" required autofocus>
             <input type="password" class="form-control" placeholder="Password" name="password" requried>
             <input type="password" class="form-control" placeholder="Confirm Password" name="password_confirm" required>
             <button class="btn btn-lg btn-primary btn-block" type="submit" name="submitbutton" >Register</button>
