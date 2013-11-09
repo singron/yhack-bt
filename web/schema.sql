@@ -1,25 +1,33 @@
 CREATE TABLE Jobs(
+      jobId serial not null,
       torrentId int references Torrents(torrentId),--references Torrent, 
-	  added timestamp,
+	  added timestamp WITHOUT TIME ZONE,
       bid int,
 	  downloaded int,
 	  size int,
-	  eta timestamp,
-	  completed timestamp,
+      speed int,
+	  eta timestamp WITHOUT TIME ZONE,
+	  completed timestamp WITHOUT TIME ZONE,
 	  userId int references Users(userId), --references Users,
-	  primary KEY (torrentId)
-	) ;
+      downloadId int references Downloads(downloadId),
+	  primary KEY (jobId)
+	);
 
+CREATE TABLE Downloads(
+      downloadId serial not null,
+      start_time timestamp WITHOUT TIME ZONE,
+      ip varchar not null,
+    );
 
 CREATE TABLE Torrents(
-	torrentId serial,
+	torrentId serial not null,
+    name varchar,
 	torrent bytea,
-	magnetLink varchar,
 	primary KEY (torrentId)
 );
 
 CREATE TABLE Users(
-	userId serial,
+	userId serial not null,
 	email varchar,
 	hash varchar,
 	salt varchar,
