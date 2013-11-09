@@ -77,8 +77,13 @@ function formatBytes($size, $precision = 2)
 
                     <?php foreach($user->jobs as $job): ?>
                     <?php if($job->completed): ?>
+                    <?php $db = Database::getDB();
+                           $db->getRow("downloads", "downloadid=" . $job->downloadId);
+                            $res = pg_fetch_row($result);
+       $dlid = $res[0]; ?>
+
                         <tr class="success">
-                            <td><button id="download" type="button" data-dlid=<?php echo job->downloadId ?>class="btn btn-success">Download</button></td>
+                            <td><button id="download" type="button" data-dlid=<?php echo $dlid ?>class="btn btn-success">Download</button></td>
                             <td></td>               
                     <?php else: ?>
                         <tr class="active">
