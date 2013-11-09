@@ -1,135 +1,284 @@
-<?
 
-class Database
-    {
-    var $Host     = "localhost";        // Hostname of our MySQL server.
-    var $Database = "moo";         // Logical database name on that server.
-    var $User     = "postgres";             // User and Password for login.
-    var $Password = "postgres";
- 
-    var $Link_ID  = 0;                  // Result of mysql_connect().
-    var $Query_ID = 0;                  // Result of most recent mysql_query().
-    var $Record   = array();            // current mysql_fetch_array()-result.
-    var $Row;                           // current row number.
-    var $LoginError = "";
- 
-    var $Errno    = 0;                  // error state of query...
-    var $Error    = "";
- 
-//-------------------------------------------
-//    Connects to the database
-//-------------------------------------------
-    function connect()
-        {
-        if( 0 == $this->Link_ID )
-            $this->Link_ID=mysql_connect( $this->Host, $this->User, $this->Password );
-        if( !$this->Link_ID )
-            $this->halt( "Link-ID == false, connect failed" );
-        if( !mysql_query( sprintf( "use %s", $this->Database ), $this->Link_ID ) )
-            $this->halt( "cannot use database ".$this->Database );
-        } // end function connect
- 
-//-------------------------------------------
-//    Queries the database
-//-------------------------------------------
-    function query( $Query_String )
-        {
-        $this->connect();
-        $this->Query_ID = mysql_query( $Query_String,$this->Link_ID );
-        $this->Row = 0;
-        $this->Errno = mysql_errno();
-        $this->Error = mysql_error();
-        if( !$this->Query_ID )
-            $this->halt( "Invalid SQL: ".$Query_String );
-        return $this->Query_ID;
-        } // end function query
- 
-//-------------------------------------------
-//    If error, halts the program
-//-------------------------------------------
-    function halt( $msg )
-        {
-        printf( "
-<strong>Database error:</strong> %s
-n", $msg );
-        printf( "<strong>MySQL Error</strong>: %s (%s)
-n", $this->Errno, $this->Error );
-        die( "Session halted." );
-        } // end function halt
- 
-//-------------------------------------------
-//    Retrieves the next record in a recordset
-//-------------------------------------------
-    function nextRecord()
-        {
-        @ $this->Record = mysql_fetch_array( $this->Query_ID );
-        $this->Row += 1;
-        $this->Errno = mysql_errno();
-        $this->Error = mysql_error();
-        $stat = is_array( $this->Record );
-        if( !$stat )
-            {
-            @ mysql_free_result( $this->Query_ID );
-            $this->Query_ID = 0;
+<?php
+/*
+PHP REST SQL: A HTTP REST interface to relational databases
+written in PHP
+
+postgresql.php :: PostgreSQL database adapter
+Copyright (C) 2008 Guido De Rosa <guidoderosa@gmail.com>
+
+based on MySQL driver mysql.php by Paul James
+Copyright (C) 2004 Paul James <paul@peej.co.uk>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+/* $id$ */
+
+/**
+ * PHP REST PostgreSQL class
+ * PostgreSQL connection class.
+ */
+class Database {
+    
+        /**
+         * @var int
+         */
+        var $lastInsertPKeys;
+        
+        /**
+         * @var resource
+         */
+    var $lastQueryResultResource;
+    
+    /**
+     * @var resource Database resource
+     */
+    var $db;
+    
+    /**
+     * Connect to the database.
+     * @param str[] config
+     */
+    function connect($config = "") {
+                $config = array("server"=>"localhost", "database"=>"yhack", "username"=>"yhack", "password"=>"yhack");
+                $connString = sprintf(
+                        'host=%s dbname=%s user=%s password=%s',
+                        $config['server'],
+                        $config['database'],
+                        $config['username'],
+                        $config['password']
+                );
+                
+        if ($this->db = pg_pconnect($connString)) {
+            return TRUE;
             }
-        return $stat;
-        } // end function nextRecord
- 
-//-------------------------------------------
-//    Retrieves a single record
-//-------------------------------------------
-    function singleRecord()
-        {
-        $this->Record = mysql_fetch_array( $this->Query_ID );
-        $stat = is_array( $this->Record );
-        return $stat;
-        } // end function singleRecord
- 
-//-------------------------------------------
-//    Returns the number of rows  in a recordset
-//-------------------------------------------
-    function numRows()
-        {
-        return mysql_num_rows( $this->Query_ID );
-        } // end function numRows
- 
-//-------------------------------------------
-//    Returns the Last Insert Id
-//-------------------------------------------
-    function lastId()
-        {
-        return mysql_insert_id();
-        } // end function numRows
- 
-//-------------------------------------------
-//    Returns Escaped string
-//-------------------------------------------
-    function mysql_escape_mimic($inp)
-        {
-        if(is_array($inp))
-            return array_map(__METHOD__, $inp);
-        if(!empty($inp) && is_string($inp)) {
-            return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
-        }
-        return $inp;
-        }
-//-------------------------------------------
-//    Returns the number of rows  in a recordset
-//-------------------------------------------
-    function affectedRows()
-        {
-            return mysql_affected_rows();
-        } // end function numRows
- 
-//-------------------------------------------
-//    Returns the number of fields in a recordset
-//-------------------------------------------
-    function numFields()
-        {
-            return mysql_num_fields($this->Query_ID);
-        } // end function numRows
- 
-    } // end class Database
-/* From: kjventura.com */
+                return FALSE;
+    }
 
+    /**
+     * Close the database connection.
+     */
+    function close() {
+        pg_close($this->db);
+    }
+    
+    /**
+     * Get the columns in a table.
+     * @param str table
+     * @return resource A resultset resource
+     */
+    function getColumns($table) {
+            $qs = sprintf('SELECT * FROM information_schema.columns WHERE table_name =\'%s\'', $table);
+                return pg_query($this->db, $qs);
+    }
+    
+    /**
+     * Get a row from a table.
+     * @param str table
+     * @param str where
+     * @return resource A resultset resource
+     */
+    function getRow($table, $where) {
+    			$where = pg_escape_string($where);
+		$table = pg_escape_string($table);
+
+        $result = pg_query(sprintf('SELECT * FROM %s WHERE %s', $table, $where));   
+            if ($result) {
+                $this->lastQueryResultResource = $result;
+            }
+        return $result;
+    }
+    
+    /**
+     * Get the rows in a table.
+     * @param str primary The names of the primary columns to return
+     * @param str table
+     * @return resource A resultset resource
+     */
+    function getTable($primary, $table) {
+        $result = pg_query($this->db, sprintf('SELECT %s FROM %s', $primary, $table));  
+        if ($result) {
+            $this->lastQueryResultResource = $result;
+        }
+        return $result;        
+    }
+
+    /**
+     * Get the tables in a database.
+     * @return resource A resultset resource
+     */
+    function getDatabase() {
+        return pg_query($this->db, 'SELECT table_name FROM information_schema.tables WHERE table_schema=\'public\'');   
+    }
+        
+    /**
+     * Get the primary keys for the request table.
+     * @return str[] The primary key field names
+     */
+    function getPrimaryKeys($table) {
+        $i = 0;
+        $primary = NULL;
+        do {
+                    $query = sprintf('SELECT pg_attribute.attname
+                        FROM pg_class, pg_attribute, pg_index
+                WHERE pg_class.oid = pg_attribute.attrelid AND
+                pg_class.oid = pg_index.indrelid AND
+                pg_index.indkey[%d] = pg_attribute.attnum AND
+                pg_index.indisprimary = \'t\'
+                and relname=\'%s\'',
+                                $i,
+                                $table
+                        );
+                $result = pg_query($this->db, $query);
+            $row = pg_fetch_assoc($result);
+            if ($row) {
+                $primary[] = $row['attname'];
+            } 
+            $i++;
+        } while ($row);
+                
+        return $primary;
+    }
+        
+    /**
+     * Update a row.
+     * @param str table
+     * @param str values
+     * @param str where
+     * @return bool
+     */
+    function updateRow($table, $values, $where) {
+        # translate from MySQL syntax :)
+        $values = preg_replace('/"/','\'',$values);
+        $values = preg_replace('/`/','"',$values); 
+        array_map( "pg_escape_string", $values );
+        $where = pg_escape_string($where);
+        $qs = sprintf('UPDATE %s SET %s WHERE %s', $table, $values, $where);
+        $result = pg_query($this->db, $qs);       
+        if ($result) {
+            $this->lastQueryResultResource = $result;
+        }
+        return $result;
+    }
+    
+    /**
+     * Insert a new row.
+     * @param str table
+     * @param str names
+     * @param str values
+     * @return bool
+     */
+     
+     function query($q){
+     	$result = pg_query($this->db, $q);
+        $lastInsertPKeys = pg_fetch_row($result);
+        $this->lastInsertPKeys = $lastInsertPKeys;
+                
+        return $result;
+	     
+     }
+     
+    function insertRow($table, $names, $values, $returning='id', $escape = true) {
+        if ($escape){
+                $names = pg_escape_string( $names );
+                $values = pg_escape_string( $values );
+          }
+          $values = "'" . $values . "'";
+          $values = str_replace(',',"','",$values);
+          
+		  
+        $qs = sprintf(
+                        'INSERT INTO %s (%s) VALUES (%s) returning %s',
+                        $table,
+                        $names,
+                        $values, 
+                        $returning
+                );
+
+        $result = pg_query($qs); #or die(pg_last_error());
+        $lastInsertPKeys = pg_fetch_row($result);
+        $this->lastInsertPKeys = $lastInsertPKeys;
+                
+        if ($result) {
+            $this->lastQueryResultResource = $result;
+        }
+        return $result;
+    }
+    
+    /**
+     * Get the columns in a table.
+     * @param str table
+     * @return resource A resultset resource
+     */
+    function deleteRow($table, $where) {
+		$where = pg_escape_string($where);
+		$table = pg_escape_string($table);
+        $result = pg_query(sprintf('DELETE FROM %s WHERE %s', $table, $where), $this->db);   
+        if ($result) {
+            $this->lastQueryResultResource = $result;
+        }
+        return $result;
+    }
+    
+    /**
+     * Escape a string to be part of the database query.
+     * @param str string The string to escape
+     * @return str The escaped string
+     */
+    function escape($string) {
+        return pg_escape_string($string);
+    }
+    
+    /**
+     * Fetch a row from a query resultset.
+     * @param resource resource A resultset resource
+     * @return str[] An array of the fields and values from the next row in the resultset
+     */
+    function row($resource) {
+        return pg_fetch_assoc($resource);
+    }
+
+    /**
+     * The number of rows in a resultset.
+     * @param resource resource A resultset resource
+     * @return int The number of rows
+     */
+    function numRows($resource) {
+        return pg_num_rows($resource);
+    }
+    
+    function nextRecord(){
+	    return pg_fetch_assoc($this->lastQueryResultResource);
+    }
+
+    /**
+     * The number of rows affected by a query.
+     * @return int The number of rows
+     */
+    function numAffected() {
+        return pg_affected_rows($this->lastQueryResultResource);
+    }
+    
+    /**
+     * Get the ID of the last inserted record. 
+     * @return int The last insert ID ('a/b' in case of multi-field primary key)
+     */
+    function lastInsertId() {
+        return join('/', $this->lastInsertPKeys);
+    }
+    
+}
 ?>

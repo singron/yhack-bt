@@ -1,14 +1,17 @@
 <?
+
+
 require('db.php');
+
 
 class Controller {
 	static public $db = NULL;
 	public static function getDB(){
-		if (!$db) {
-			Controller::$db = new Database();
-			Controller::$db->connect;
+		if (!self::$db) {
+			self::$db = new Database();
+			self::$db->connect();
 		}
-		return Controller::$db;
+		return self::$db;
 	}
 }
 
@@ -33,9 +36,11 @@ class User {
 		$u->salt = uniqid(mt_rand(), true);
 		$u->hash = crypt($u->salt . $password);
 		$u->credit = $credit;
-		
+		$u->email = $email;
 		$db = Controller::getDB();
-		$db->query("INSERT into Users (email, hash, salt) VALUES ('$u->email', '$u->hash', '$u->salt')");
+		$db->insertRow("Users", "email, hash, salt", "'$u->email', '$u->hash' , '$u->salt'" , 'userId');
+		$u->userId = $db->lastInsertId();
+		
 		return $u;
 	}
 	
@@ -47,14 +52,14 @@ class User {
 	
 	public static function getUserWithId($id){
 		$db = Controller::getDB();
-		$db->query( "SELECT * from Users where userId = $id" );
-		return new User($db->singleRecord());
+		$db->getRow( "Users", "userId = $id" );
+		return new User($db->nextRecord());
 	}
 	
 
 	public function getActiveJobs(){
 		$db = Controller::getDB();
-		$jobs = $db->query("SELECT * from Jobs WHERE userId = $this->userId and completed IS NULL ORDER BY added ASC");
+		$jobs = $db->getRow("Jobs", "userId = $this->userId and completed IS NULL ORDER BY added ASC");
 		while ($next = Controller::$db->nextRecord()){
 			$j = new Job($next);
 			array_push($this->jobs, $j);
@@ -69,7 +74,7 @@ class User {
 	public function update(){
 		if (!$this->userId) return -1;
 		$db = Controller::getDB();
-		$db->query("UPDATE Users set userId = '$this->userId', email = '$this->userId', hash = '$this->userId', salt = '$this->userId', credit='$this->credit' WHERE userId = '$this->userId'")		
+		$db->updateRow("Users", "userId = '$this->userId', email = '$this->email', hash = '$this->hash', salt = '$this->salt', credit='$this->credit'", "userId = '$this->userId'");	
 		foreach ($this->jobs as $job){
 			$job->update();
 		}
@@ -78,7 +83,7 @@ class User {
 }
 
 class Job {
-	public $torrentId;
+	public $jobId;
 	public $torrent;
 	public $added;
 	public $bid;
@@ -90,19 +95,18 @@ class Job {
 
 	public static function getJobWithId($id){
 		$db = Controller::getDB();
-		$db->query( "SELECT * from Jobs where torrentId = $id" );
-		return new Job($db->singleRecord());
+		$db->getRow( "Jobs", "where jobId = $id" );
+		return new Job($db->nextRecord());
 	}
 	
-	public static function createJob( $torrentId, $userId, $size, $bid ){
+	public static function createJob( $torrentId, $userId, $bid ){
 		$j = new Job();
 		$j->torrentId = $torrentId;
 		$j->userId = $userId;
-		$j->size = $size;
 		$j->bid = $bid;
-		
 		$db = Controller::getDB();
-		$db->query("INSERT into Jobs (torrentId, userId, size, bid) VALUES ('$j->torrentId', '$j->userId', '$j->size', '$j->bid')");
+		$db->insertRow('Jobs', "torrentId, userId, bid", "$j->torrentId, $j->userId,$j->bid", 'jobId');
+		$j->jobId = $db->lastInsertId();
 		return $j;
 	}
 
@@ -122,6 +126,7 @@ class Job {
 		$this->completed = $record->completed;
 		$this->userId = $record->userId;
 	}
+	
 
 	public function progress() { 
 		return $this->downloaded / (float)$this->size;
@@ -130,32 +135,37 @@ class Job {
 	public function update(){
 		if (!$this->torrentId) return -1;
 		$db = Controller::getDB();
-		$db->query("UPDATE Job set torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size', eta='$this->eta', completed='$this->completed',  WHERE torrentId = '$this->torrentId'")
+		$db->updateRow("Job", "torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size', eta='$this->eta', completed='$this->completed'", "jobId = '$this->jobId'");
 		if ($this->torrent) 
 			$torrent->update();
 	}
-	
-	public function updateProgress($downloaded, $eta){
-		$this->downloaded = $downloaded;
-		$this->eta = $eta;
-		$db = Controller::getDB();
-		$db->query("UPDATE jobs SET downloaded = $downloaded, eta= $eta WHERE torrentId = $this->torrentId")
-	}
-	
+		
 	public static function updateProgress($jid, $downloaded, $eta){
 		$j = new Job();
 		$j->torrentId = $jid;
 		$j->updateProgress($downloaded, $eta);
 	}
-	
- 
 }
 
 class Torrent {
 	public $torrentId;
-	public $torrent;
-	public $magnetLink;
-}
+	public $torrentPath;
 
+	
+	public static function createTorrent($torrentPath){
+		$db = Controller::getDB();
+ 		$data = bin2hex(file_get_contents($torrentPath));
+		$t = new Torrent;
+		$db->insertRow("Torrents", 'torrent' , $data, 'torrentId', false);
+		$t->torrentId = $db->lastInsertId();
+		$t->torrentPath = $torrentPath;
+
+		return $t;
+	}
+}
+echo "SDF";
+$t = Torrent::createTorrent("/var/www/mikey/db.php");
+$u = User::createUser("micmoo@me.com", "luigi193", 100);
+$j = Job::createJob($t->torrentId, $u->userId, 10);
 
 	?>
