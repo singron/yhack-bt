@@ -103,6 +103,7 @@ class Database {
 
 		$table = pg_escape_string($table);
           $where = str_replace(',',"','",$where);
+          $where = str_replace("''","'",$where);
 
         $result = pg_query(sprintf('SELECT * FROM %s WHERE %s', $table, $where));   
             if ($result) {
@@ -205,9 +206,14 @@ class Database {
                 $names = pg_escape_string( $names );
                 $values = pg_escape_string( $values );
           }
-          $values = "'" . $values . "'";
-          $values = str_replace(',',"','",$values);
-          
+
+          $values = str_replace("''''","'",$values);
+          $values = str_replace("'''","'",$values);
+          $values = str_replace("''","'",$values);
+          $values = str_replace("''","'",$values);
+
+		var_dump($values);
+
 		  
         $qs = sprintf(
                         'INSERT INTO %s (%s) VALUES (%s) returning %s',
