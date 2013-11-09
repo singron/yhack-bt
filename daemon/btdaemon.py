@@ -117,7 +117,7 @@ def main():
                     s = select([Downloads]).where(Downloads.c.link == s3link)
                     res = engine.execute(ins).fetchone()
 
-                    s = Jobs.update().values(Jobs.c.downloadid = res.downloadid)\
+                    s = Jobs.update().values(Jobs.c.downloadid == res.downloadid)\
                             .where(and_(Jobs.c.torrendid == Torrents.c.torrentid,\
                                         Torrents.c.infohash == infohash))
 
