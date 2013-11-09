@@ -33,7 +33,7 @@ CREATE TABLE Jobs(
 	  size int,
       speed int,
 	  billed boolean,
-	  eta timestamp WITHOUT TIME ZONE,
+	  eta interval,
 	  completed timestamp WITHOUT TIME ZONE,
 	  userId int references Users(userId), --references Users,
       downloadId int references Downloads(downloadId),
