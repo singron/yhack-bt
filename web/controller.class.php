@@ -1,8 +1,8 @@
 <?
-	include_once('db.php');
-	include_once('user.class.php');
-	include_once('job.class.php');
-	include_once('torrent.class.php');
+	include_once('/var/www/mikey/db.php');
+	include_once('/var/www/mikey/user.class.php');
+	include_once('/var/www/mikey/job.class.php');
+	include_once('/var/www/mikey/torrent.class.php');
 	
 	class Controller {
 		public static function getUser($id){
