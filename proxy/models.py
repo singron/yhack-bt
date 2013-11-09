@@ -26,6 +26,7 @@ Torrents = Table('Torrents', metadata,
     Column('torrentId', Integer, primary_key=True),
     Column('name', String),
     Column('torrent', LargeBinary),
+    Column('infoHash', String),
 )
 
 Users = Table('Users', metadata,
