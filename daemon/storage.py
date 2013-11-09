@@ -12,12 +12,12 @@ def get_bucket():
 def store_file(infoHash):
     os.chdir(torrent_dir)
     os.system("zip -r %s -0 %s" % (infoHash, infoHash))
-    os.chdir('/home/rtorrent')
 
     k = Key(get_bucket())
     k.key = infoHash
     k.set_contents_from_filename(infoHash + '.zip')
 
+    os.chdir('/home/rtorrent')
     # Generate the URL
     return k.generate_url(86400)
 
