@@ -1,6 +1,7 @@
 <?php 
 require('controller.class.php'); 
 $user = Controller::authenticate();
+if($user == NULL) header("Location: login.php");
 ?>
 <!DOCTYPE html>
 <html>
