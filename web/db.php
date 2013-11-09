@@ -32,7 +32,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * PostgreSQL connection class.
  */
 class Database {
-    
+    	static public $db = NULL;
+		public static function getDB(){
+			if (!self::$db) {
+				self::$db = new Database();
+				self::$db->connect();
+			}
+			return self::$db;
+		}
+	}
+	
         /**
          * @var int
          */
@@ -261,7 +270,7 @@ class Database {
     }
     
     function nextRecord(){
-	    return pg_fetch_assoc($this->lastQueryResultResource);
+	    return pg_fetch_object($this->lastQueryResultResource);
     }
 
     /**
@@ -281,4 +290,6 @@ class Database {
     }
     
 }
+
+
 ?>
