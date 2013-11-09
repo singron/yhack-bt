@@ -102,9 +102,6 @@ class Database {
     function getRow($table, $where) {
 
 		$table = pg_escape_string($table);
-          $where = str_replace(',',"','",$where);
-          $where = str_replace("''","'",$where);
-
         $result = pg_query(sprintf('SELECT * FROM %s WHERE %s', $table, $where));   
             if ($result) {
                 $this->lastQueryResultResource = $result;
@@ -204,12 +201,13 @@ class Database {
                 $names = pg_escape_string( $names );
                 $values = pg_escape_string( $values );
           }
-
+		  
           $values = str_replace("''''","'",$values);
           $values = str_replace("'''","'",$values);
           $values = str_replace("''","'",$values);
           $values = str_replace("''","'",$values);
 
+		
 
 		  
         $qs = sprintf(
@@ -220,7 +218,7 @@ class Database {
                         $returning
                 );
 
-        $result = pg_query($qs); #or die(pg_last_error());
+        $result = pg_query($this->_db, $qs); #or die(pg_last_error());
         $lastInsertPKeys = pg_fetch_row($result);
         $this->lastInsertPKeys = $lastInsertPKeys;
                 

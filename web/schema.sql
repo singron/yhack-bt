@@ -39,3 +39,7 @@ CREATE TABLE Jobs(
       downloadId int references Downloads(downloadId),
 	  primary KEY (jobId)
 	);
+	
+	
+	
+INSERT INTO Torrents (name, torrent, infoHash) VALUES ("Jimmy Bean" )
