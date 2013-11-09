@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, Lar
 
 metadata = MetaData()
 
-Jobs = Table('Jobs', metadata,
+Jobs = Table('jobs', metadata,
     Column('jobId', Integer, primary_key=True),
     Column('torrentId', Integer, ForeignKey('Torrents.torrentId')),
     Column('added', DateTime(False)),
@@ -17,21 +17,21 @@ Jobs = Table('Jobs', metadata,
     Column('downloadId', Integer, ForeignKey('Downloads.downloadId')),
 )
 
-Downloads = Table('Downloads', metadata,
+Downloads = Table('downloads', metadata,
     Column('downloadId', Integer, primary_key=True),
     Column('start_time', DateTime(False)),
     Column('ip', String, nullable=False),
     Column('link', String, nullable=False),
 )
 
-Torrents = Table('Torrents', metadata,
+Torrents = Table('torrents', metadata,
     Column('torrentId', Integer, primary_key=True),
     Column('name', String),
     Column('torrent', LargeBinary),
     Column('infoHash', String, unique=True)
 )
 
-Users = Table('Users', metadata,
+Users = Table('users', metadata,
     Column('userId', Integer, primary_key=True),
     Column('email', String),
     Column('hash', String),
