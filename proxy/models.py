@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, LargeBinary, MetaData, Boolean
+from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, LargeBinary, MetaData, Boolean, Interval
 
 metadata = MetaData()
 
@@ -10,7 +10,7 @@ Jobs = Table('jobs', metadata,
     Column('downloaded', Integer),
     Column('size', Integer),
     Column('speed', Integer),
-    Column('eta', DateTime(False)),
+    Column('eta', Interval),
     Column('completed', DateTime(False)),
     Column('active', Boolean),
     Column('userid', Integer, ForeignKey('users.userid')),
@@ -28,6 +28,7 @@ Torrents = Table('torrents', metadata,
     Column('torrentid', Integer, primary_key=True),
     Column('name', String),
     Column('torrent', LargeBinary),
+    Column('magnet_link', String),
     Column('infohash', String, unique=True)
 )
 

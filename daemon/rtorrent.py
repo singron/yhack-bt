@@ -2,7 +2,6 @@ import xmlrpclib
 from time import time
 
 class RTorrent:
-<<<<<<< HEAD
     def __init__(self):
         self.proxy = xmlrpclib.ServerProxy("http://localhost:500")
         self.delay = 0
@@ -11,7 +10,7 @@ class RTorrent:
         self.delay = time() + 5
 
     def add_torrent_file(self, filedata):
-        self.proxy.load_raw_start(xmlrpc.Binary(filedata))
+        self.proxy.load_raw_start(xmlrpclib.Binary(filedata))
         self.reset_timer()
 
     def add_torrent_magnet(self, magnet):

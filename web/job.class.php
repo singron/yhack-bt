@@ -28,7 +28,7 @@ class Job {
 		$j->bid = $bid;
 		$j->billed = false;
 		$j->completed = false;
-
+		$j->added = date(DATE_RFC2822);
 		$j->active = false;
 		$db = Database::getDB();
 		$db->insertRow('Jobs', "torrentId, userId, bid", "$j->torrentId, $j->userId,$j->bid", 'jobId');
@@ -91,11 +91,19 @@ class Job {
 	}
 
 	
+	public function torrentName(){
+
+	}
 	
 	public function update(){
 		if (!$this->torrentId) return -1;
 		$db = Database::getDB();
-		$db->updateRow("Job", "torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size', eta='$this->eta', completed='$this->completed'", "jobId = '$this->jobId', active='$this->active', billed='$this->billed'");
+		$str = "";
+		if ($this->eta)
+			$str .= "eta='$this->eta',";
+		if($this->completed) 
+			$str .= "completed='$this->completed,";
+		$db->updateRow("Jobs", "torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size'," . $str . " billed='$this->billed'", "jobId = '$this->jobId'");
 	}
 		
 	public function updateProgress($downloaded, $eta, $speed){
