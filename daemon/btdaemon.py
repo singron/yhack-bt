@@ -4,7 +4,8 @@ import bencode
 import rtorrent
 import urlparse
 import datetime
-from models import Jobs,Torrents
+from storage import *
+from models import Jobs,Torrents,Downloads
 from sqlalchemy import create_engine,and_,func,select,update,bindparam,not_,or_
 
 def error(msg):
@@ -28,9 +29,6 @@ def get_info_hash_magnet(magnet):
 		error("unknown magnet link hash {}".format(magnet))
 		return None
 	return infohash.upper()
-
-def move_completed_download(rt, infohash):
-	pass
 
 def calculate_hashes(engine):
 	torrent_qry = select([Torrents])\
@@ -66,7 +64,13 @@ def main():
 						 size=bindparam('size'))\
 			     .where(and_(Torrents.c.infohash == bindparam('infohash'),
 				             Jobs.c.torrentid == Torrents.c.torrentid))
-
+	
+	complete_qry = Downloads.update()\
+			       .values(link=bindparam('s3link'))\
+				   .where(and_(Downloads.c.downloadid == Jobs.c.downloadid,\
+				               Jobs.c.torrentid == Torrents.c.torrentid,\
+							   Torrents.c.infohash == bindparam('infohash')))
+	
 	active_queue = rt.get_active_infohashes()
 	running = True
 	while running:
@@ -78,16 +82,21 @@ def main():
 				size_bytes = rt.get_size_bytes(infohash)
 				if completed_bytes == size_bytes:
 					# Torrent is done
-					move_completed_download(rt, infohash)
+					print "Completed " + infohash
+					s3link = store_file(infohash)
 					rt.close(infohash)
-					engine.execute(complete_qry, infohash=infohash)
+					engine.execute(complete_qry, infohash=infohash,
+							s3link=s3link)
 				else:
 					# update current stats
 					down_rate = rt.get_down_rate(infohash)
 					completed_bytes = rt.get_completed_bytes(infohash)
 					size = rt.get_size_bytes(infohash)
-					eta = datetime.timedelta(seconds=((size - completed_bytes) /
-						down_rate))
+					if down_rate != 0:
+						eta = datetime.timedelta(seconds=((size - completed_bytes) /
+							down_rate))
+					else:
+						eta = None
 					engine.execute(update_qry,\
 							infohash=infohash,\
 							down_rate=down_rate,\
@@ -98,7 +107,6 @@ def main():
 		new_torrents = []
 		if not active_queue:
 			# Add more torrents
-			print "Adding to active queue"
 			more_needed = queue_size
 			queue_qry = select([Torrents])\
 						.where(and_(Jobs.c.completed == None,\
@@ -124,5 +132,23 @@ def main():
 			elif t.magnet_link:
 				rt.add_torrent_magnet(t.magnet_link)
 
+		if active_torrents:
+			# remove stale torrents
+			check_qry = select([Torrents.c.infohash])\
+						.select_from(Torrents.outerjoin(Jobs,\
+							Jobs.c.completed == None))\
+						.where(Torrents.c.infohash.in_(active_queue))
+
+			stale_torrents = engine.execute(check_qry)
+			stale_hashes = [t.infohash for t in stale_torrents]
+			active_torrents_tmp = []
+			for t in active_torrents:
+				if t in stale_hashes:
+					print "Remove stale torrent " + t
+					rt.close(t)
+				else:
+					active_torrents_tmp.append(t)
+			active_torrents = active_torrents_tmp
+			
 if __name__ == '__main__':
 	main()
