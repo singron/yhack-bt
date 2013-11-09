@@ -1,6 +1,10 @@
 .btn{
     margin-left: 5px;
-    margin-bottom: 5px;
+}
+
+.well {
+    margin-left: 5px;
+    max-width: 300px;
 }
 
 .upload-magnet {
