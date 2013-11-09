@@ -1,4 +1,8 @@
 <?
+	echo bin2hex($_POST['t']);
+	echo "<form action='tests.php' method='post' enctype='multipart/form-data'><textarea id='t' name='t'></textarea><input type='submit' /></form>";
+	exit(0);
+	
 	require("controller.class.php");
 	$e = mt_rand(65,95) . mt_rand(65,95) . mt_rand(65,95) . mt_rand(65,95) .mt_rand(65,95);
 	$user1 = User::createUser($e, "luigi193");

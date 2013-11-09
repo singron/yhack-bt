@@ -1,6 +1,6 @@
 <?
 	include('controller.class.php');
-	$_POST = $_GET;
+
 	if (!array_key_exists("mode", $_POST)) exit(0);
 	switch($_POST['mode']){
 		case "createUser":
@@ -32,6 +32,7 @@
 		case "addCreditToUser":
 			Controller::addFundsToUser($_POST['funds'], $_POST['userId']);
 		break;
+		
 		
 		case "getAvailableJobsForUser":
 			echo json_encode(Controller::getAvailableJobsForUser($_POST['userId']));
