@@ -86,10 +86,15 @@ def main():
 			     .where(and_(Torrents.c.infohash == bindparam('infohash'),
 				             Jobs.c.torrentid == Torrents.c.torrentid))
 	
-	complete_qry = Downloads.update()\
+	complete1_qry = Downloads.update()\
 			       .values(link=bindparam('s3link'))\
 				   .where(and_(Downloads.c.downloadid == Jobs.c.downloadid,\
 				               Jobs.c.torrentid == Torrents.c.torrentid,\
+							   Torrents.c.infohash == bindparam('infohash')))
+
+	complete2_qry = Jobs.update()\
+			       .values(completed=func.now())\
+				   .where(and_(Jobs.c.torrentid == Torrents.c.torrentid,\
 							   Torrents.c.infohash == bindparam('infohash')))
 	
 	active_queue = rt.get_active_infohashes()
@@ -118,8 +123,9 @@ def main():
 
 					rt.close(infohash)
 					rt.erase(infohash)
-					engine.execute(complete_qry, infohash=infohash,
+					engine.execute(complete1_qry, infohash=infohash,
 							s3link=s3link)
+					engine.execute(complete2_qry, infohash=infohash)
 				else:
 					# update current stats
 					down_rate = rt.get_down_rate(infohash)
