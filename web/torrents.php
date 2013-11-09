@@ -73,7 +73,7 @@ date_default_timezone_set('America/New_York');
                             <td><button type="button" class="btn btn-danger">Cancel</button></td>
                             <td><?php echo $job->bid ?></td>
                     <?php endif; ?>
-                    <td><?php echo $job->torrent->name ?></td>
+                    <td><?php echo Torrent::getTorrent($job->torrentId)->name ?></td>
                     <td><?php echo $job->size ?></td>
                     <td>
                         <div class="progress text-center">
