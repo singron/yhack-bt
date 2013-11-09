@@ -13,6 +13,7 @@ class Job {
 	public $completed;
 	public $userId;
 	public $billed;
+	public $downloadId;
 
 	public static function getJob($id){
 		$db = Database::getDB();
@@ -52,6 +53,8 @@ class Job {
 		$this->completed = $record->completed;
 		$this->jobId = $record->jobid;
 		$this->userId = $record->userid;
+		$this->downloadId = $record->downloadId;
+
 	}
 	
 	public function pause(){
@@ -94,6 +97,7 @@ class Job {
 		if (!$this->torrentId) return -1;
 		$db = Database::getDB();
 		$str = "";
+		if ($this->downloadId) $str .= "downloadId='$this->downloadId'";
 		if ($this->eta)
 			$str .= "eta='$this->eta',";
 		if($this->completed) 
