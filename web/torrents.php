@@ -40,7 +40,7 @@ function formatBytes($size, $precision = 2)
         <div class ="upload">
             <form class="form-upload" action="add_torrent.php" method="post" role="form" enctype="multipart/form-data">
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary" id="torrent_btn">
+                    <label class="btn btn-primary active" id="torrent_btn">
                         <input type="radio" name="torrent_enabled" id="torrentradio">Torrent
                     </label>
                     <label class="btn btn-primary" id="magnet_btn">
