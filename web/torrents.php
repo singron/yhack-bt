@@ -13,6 +13,8 @@ date_default_timezone_set('America/New_York');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="assets/css/torrents.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -26,20 +28,25 @@ date_default_timezone_set('America/New_York');
        $activepage = 'torrents';
        include 'navbar.php'; 
        ?>
-       <div class ="upload">
+        <div class ="upload">
             <form class="form-upload" action="upload.php" method="post" role="form">
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary">
-                        <input type="radio" name="torrenttype" id="torrent">Torrent
+                    <label class="btn btn-primary" id="torrent_btn">
+                        <input type="radio" name="torrenttype" id="torrentradio">Torrent
                     </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" name="torrenttype" id="Magnet">Magnet
+                    <label class="btn btn-primary" id="magnet_btn">
+                        <input type="radio" name="torrenttype" id="magnetradio">Magnet
                     </label>
                 </div>
-                <input type="file" id="torrentfile">
-                <button class="btn btn-default" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
+                <div class="upload-torrent" id="torrent-div">
+                    <input type="file" id="torrentfile">
+                </div>
+                <div class="upload-magnet" id="magnet-div">
+                    <input type="text" class="form-control" name="magnetinput" placeholder="Magnet link">
+                </div>
+                <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
             </form>
-        </div
+        </div>
         <div class="torrents">
           <table class="table" id='torrents'>
             <thead>
@@ -97,6 +104,7 @@ date_default_timezone_set('America/New_York');
     
     <script>
                 $(document).ready(function () {
+                    
                     var interval = 3000;  //number of mili seconds between each call
                     var refresh = function() {
                                 $.ajax({
@@ -119,6 +127,15 @@ date_default_timezone_set('America/New_York');
                         });
                     };
                     refresh();
+
+                    $("#magnet_btn").click(function() {
+                        document.getElementById('magnet-div').style.display = "block";
+                        document.getElementById('torrent-div').style.display = "none";
+                    });
+                    $("#torrent_btn").click(function() {
+                        document.getElementById('torrent-div').style.display = "block";
+                        document.getElementById('magnet-div').style.display = "none";
+                    });
                 });                
         </script> 
 
