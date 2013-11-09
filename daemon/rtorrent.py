@@ -2,7 +2,7 @@ import xmlrpclib
 
 class RTorrent:
 	def __init__(self):
-		self.proxy = xmlrpclib.ServerProxy("http://localhost:500")
+		self.proxy = xmlrpclib.ServerProxy("http://localhost:500/")
 
 	def add_torrent_file(self, filedata):
 		self.proxy.load_raw_start(filedata)
