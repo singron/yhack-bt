@@ -60,7 +60,7 @@ class Database {
      * @param str[] config
      */
     function connect($config = "") {
-                $config = array("server"=>"localhost", "port"=>"1248", "database"=>"moo", "username"=>"postgres", "password"=>"postgres");
+                $config = array("server"=>"localhost", "port"=>"5432", "database"=>"yhack", "username"=>"yhack", "password"=>"yhack");
                 $connString = sprintf(
                         'host=%s port=%s dbname=%s user=%s password=%s',
                         $config['server'],
