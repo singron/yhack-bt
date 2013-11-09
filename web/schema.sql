@@ -6,8 +6,8 @@ CREATE TABLE Jobs(
 	  size int,
 	  eta timestamp,
 	  completed timestamp,
-	  userId serial, --references Users,
-	  primary KEY (torrentId, userId)
+	  userId int references Users(userId), --references Users,
+	  primary KEY (torrentId)
 	) ;
 
 
