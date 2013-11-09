@@ -114,11 +114,11 @@ def main():
                     ins = Downloads.insert().values(link=s3link)
                     engine.execute(ins)
 
-                    s = select([Downloads]).where(Downloads.c.link == s3link)
-                    res = engine.execute(ins).fetchone()
+                    s = select([Downloads]).where(Downloads.c.link == s3link).limit(1)
+                    res = engine.execute(s).fetchone()
 
-                    s = Jobs.update().values(Jobs.c.downloadid == res.downloadid)\
-                            .where(and_(Jobs.c.torrendid == Torrents.c.torrentid,\
+                    Jobs.update().values(downloadid=res.downloadid)\
+                            .where(and_(Jobs.c.torrentid == Torrents.c.torrentid,\
                                         Torrents.c.infohash == infohash))
 
                     rt.close(infohash)
