@@ -9,10 +9,11 @@ CREATE TABLE Torrents(
 
 CREATE TABLE Downloads(
       downloadId serial not null,
+      link varchar,
       start_time timestamp WITHOUT TIME ZONE,
-      ip varchar not null,
+      ip varchar,
       primary KEY (downloadId)
- );
+);
 
 
 CREATE TABLE Users(
@@ -40,5 +41,3 @@ CREATE TABLE Jobs(
     downloadId int references Downloads(downloadId),
     primary KEY (jobId)
 );
-	
-	

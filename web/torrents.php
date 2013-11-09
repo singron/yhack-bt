@@ -75,7 +75,7 @@ function formatBytes($size, $precision = 2)
                     <?php foreach($user->jobs as $job): ?>
                     <?php if($job->completed): ?>
                         <tr class="success">
-                            <td><button type="button" class="btn btn-success">Download</button></td>
+                            <td><button id="download" type="button" data-dlid=<?php echo job->downloadId ?>class="btn btn-success">Download</button></td>
                             <td></td>               
                     <?php else: ?>
                         <tr class="active">
@@ -152,6 +152,10 @@ function formatBytes($size, $precision = 2)
                         document.getElementById('torrent-div').style.display = "block";
                         document.getElementById('magnet-div').style.display = "none";
                         $("input#select").val("file");
+                    });
+
+                    $("#download").click(function() {
+                        alert("http://yhack.phaaze.com/files/" + this.data("dlid"));
                     });
                 });                
         </script> 
