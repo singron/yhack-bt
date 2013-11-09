@@ -32,6 +32,8 @@
 		}
 		
 		public static function createUser($email, $password){
+			$user = User::existsUserWithEmail($email);
+			if ($user == 1) return -1;
 			$user = User::createUser($email, $password);
 			return json_encode($user);
 		}
