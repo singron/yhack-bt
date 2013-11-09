@@ -5,8 +5,10 @@ class User {
 	public $userId;
 	public $email;
 	public $hash;
-	public $salt;
+	private $salt;
 	public $credit;
+	public $sessionId;
+	public $loggedIn = false;
 	public $jobs = array();
 
 	public function initWithRecord($record){
@@ -15,6 +17,7 @@ class User {
 		$this->hash = $record->hash;
 		$this->salt = $record->salt;
 		$this->credit = $record->credit;
+		$this->sessionId = $record->sessionid;
 	}
 	
 	public static function createUser($email, $password, $credit = 0){
@@ -29,6 +32,8 @@ class User {
 		
 		return $u;
 	}
+	
+	
 	
 	public static function existsUserWithEmail($email){
 		$db = Database::getDB();
@@ -67,6 +72,16 @@ class User {
 			array_push($this->jobs, $j);
 		}
 		return $this->jobs;
+	}
+	
+	public function checkLogin($pw){
+		return (crypt($this->salt . $pw) == $this->hash);
+	}
+	
+	public function setSessionId($sid){
+		$db = Database::getDB();
+		$this->sessionId = $sid;
+		$db->updateRow("Users", "sessionId = '$this->sessionId'", "userId = '$this->userId'");	
 	}
 
 	public function addCredit($amount){

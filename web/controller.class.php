@@ -1,12 +1,45 @@
 <?
-	include_once('/var/www/mikey/db.php');
-	include_once('/var/www/mikey/user.class.php');
-	include_once('/var/www/mikey/job.class.php');
-	include_once('/var/www/mikey/torrent.class.php');
+	include_once('db.php');
+	include_once('user.class.php');
+	include_once('job.class.php');
+	include_once('torrent.class.php');
 	
 	class Controller {
 		public static function getUser($id){
 			return User::getUser($id);
+		}
+		
+		public static function loginUser($user, $password=-1){
+			if ($password == -1) $passwrd = $_COOKIE['hash'];
+			session_start();
+			if ($password == $user->hash){
+				if ($user->sessionId == ""){
+					session_start();
+					$user->setSessionId(session_id());
+				 	setcookie('email', $user->email, $past); 
+				 	setcookie('hash', $user->hash, $past); 
+					echo $_COOKIE['email'];
+					$user->loggedIn = true;
+				}
+				else {
+					session_id($user->sessionId);
+					if ($user->sessionId != session_id()){
+						$user->loggedIn = false;
+						$past = time() - 100; 
+					 	setcookie("email", 'gone', $past); 
+					 	setcookie("hash", 'gone', $past); 
+						header("Location: login.php");
+					}
+					else {
+						session_id($user->sessionId);
+						$user->loggedIn = true;
+						echo session_id();
+					}
+				}
+			}
+			else {
+				header("Location: login.php");
+			}
 		}
 		
 		public static function getUserAndAvailableJobs($id){
@@ -74,8 +107,16 @@
 				// Error
 		}
 		
+		public static function authenticate(){
+			if (isset($_COOKIE['email'])){
+				$u = User::getUserByEmail($_COOKIE['email']);
+				Controller::loginUser($u, $_COOKIE['hash']);
+				return $u;
+			}
+			else {
+				header("Location: login.php");
+			}
+		}
 	}
-	
-	
 
 ?>

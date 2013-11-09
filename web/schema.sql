@@ -10,7 +10,8 @@ CREATE TABLE Downloads(
       start_time timestamp WITHOUT TIME ZONE,
       ip varchar not null,
       primary KEY (downloadId)
-    );
+ );
+
 
 CREATE TABLE Users(
 	userId serial not null,
@@ -18,6 +19,7 @@ CREATE TABLE Users(
 	hash varchar,
 	salt varchar,
 	credit int,
+	sessionId varchar,
 	primary KEY(userId)
 );
 
@@ -29,6 +31,7 @@ CREATE TABLE Jobs(
 	  downloaded int,
 	  size int,
       speed int,
+	  billed boolean,
 	  eta timestamp WITHOUT TIME ZONE,
 	  completed timestamp WITHOUT TIME ZONE,
 	  userId int references Users(userId), --references Users,
