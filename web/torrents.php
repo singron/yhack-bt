@@ -5,6 +5,14 @@ if($user == NULL) header("Location: login.php");
 $user->getActiveJobs();
 date_default_timezone_set('America/New_York'); 
 
+function formatBytes($size, $precision = 2)
+{
+    $base = log($size) / log(1024);
+    $suffixes = array('', 'k', 'M', 'G', 'T');   
+
+    return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -75,7 +83,7 @@ date_default_timezone_set('America/New_York');
                             <td><?php echo $job->bid ?></td>
                     <?php endif; ?>
                     <td><?php echo Torrent::getTorrent($job->torrentId)->name ?></td>
-                    <td><?php echo $job->size ?></td>
+                    <td><?php echo formatBytes($job->size) ?></td>
                     <td>
                         <div class="progress text-center">
                             <div class="progress-bar" style="width: <?php echo round(100*($job->downloaded/$job->size),1) ?>%;">
@@ -88,7 +96,7 @@ date_default_timezone_set('America/New_York');
                         <td></td>
                         <td></td>
                     <?php else: ?>
-                        <td><?php echo $job->speed ?></td>
+                        <td><?php if($job->speed!=0){ echo formatBytes($job->speed), '/s';} ?></td>
                         <td><?php echo $job->eta ?></td>
                         <td></td>
                     <?php endif; ?>

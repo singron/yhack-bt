@@ -4,15 +4,17 @@ import bencode
 import rtorrent
 import urlparse
 import datetime
+import hashlib
+from binascii import unhexlify
 from storage import *
 from models import Jobs,Torrents,Downloads
-from sqlalchemy import create_engine,and_,func,select,update,bindparam,not_,or_
+from sqlalchemy import create_engine,and_,func,select,update,bindparam,not_,or_,exists
 
 def error(msg):
 	print msg
 
 def get_info_hash_torrent_file(filedata):
-	info = bencode.bdecode(filedata)['info']
+	info = bencode.bdecode(unhexlify(filedata))['info']
 	infohash = hashlib.sha1(bencode.bencode(info)).hexdigest()
 	return infohash.upper()
 
@@ -54,7 +56,6 @@ def calculate_hashes(engine):
 				 .where(Torrents.c.torrentid == bindparam('tid'))
 	torrents = engine.execute(torrent_qry)
 	for t in torrents:
-		print "getting hash"
 		infohash = None
 		name = None
 		if t.torrent != None and t.torrent != "":
@@ -131,6 +132,7 @@ def main():
 			more_needed = queue_size
 			queue_qry = select([Torrents])\
 						.where(and_(Jobs.c.completed == None,\
+									Torrents.c.infohash != None,\
 									Jobs.c.torrentid == Torrents.c.torrentid))\
 						.order_by(Jobs.c.bid.desc(), Jobs.c.added.asc())\
 						.limit(more_needed)
@@ -141,6 +143,7 @@ def main():
 			queue_qry = select([Torrents])\
 						.where(and_(Jobs.c.completed == None,\
 									Jobs.c.torrentid == Torrents.c.torrentid,\
+									Torrents.c.infohash != None,\
 									Torrents.c.infohash.notin_(active_queue)))\
 						.order_by(Jobs.c.bid.desc(), Jobs.c.added.asc())\
 						.limit(more_needed)
@@ -149,19 +152,22 @@ def main():
 		for t in new_torrents:
 			print "Add torrent " + t.infohash
 			if t.torrent:
-				rt.add_torrent_file(t.torrent)
+				print "torrent"
+				rt.add_torrent_file(unhexlify(t.torrent))
 			elif t.magnet_link:
+				print "magnet"
 				rt.add_torrent_magnet(t.magnet_link)
 
 		if active_queue:
 			# remove stale torrents
-			check_qry = select([Torrents,Jobs])\
-						.select_from(Torrents.outerjoin(Jobs,\
-			               and_(Jobs.c.torrentid == Torrents.c.torrentid,\
-						        Jobs.c.completed == None)))\
-						.where(Torrents.c.infohash.in_(active_queue))
+			check_qry = select([Torrents])\
+						.where(and_(Torrents.c.infohash.in_(active_queue),
+							not_(exists(select([Jobs]).where(and_(
+								Torrents.c.torrentid == Jobs.c.torrentid,
+								Jobs.c.completed == None
+							   ))))))
+
 			stale_torrents = engine.execute(check_qry)
-			print list(stale_torrents)
 			stale_hashes = [t.infohash for t in stale_torrents]
 			active_torrents_tmp = []
 			for t in active_queue:
