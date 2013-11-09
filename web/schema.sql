@@ -1,5 +1,5 @@
 CREATE TABLE Jobs(
-      torrentId int,--references Torrent, 
+      torrentId int references Torrents(torrentId),--references Torrent, 
 	  added timestamp,
       bid int,
 	  downloaded int,
