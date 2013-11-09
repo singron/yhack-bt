@@ -1,0 +1,8 @@
+Paste==1.7.5.1
+SQLAlchemy==0.8.3
+distribute==0.6.14
+eventlet==0.14.0
+ez-setup==0.9
+greenlet==0.4.1
+proxylet==0.0.0
+wsgiref==0.1.2

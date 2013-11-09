@@ -3,7 +3,7 @@
 # uncomment the options you wish to enable.
 
 encoding_list = UTF-8
-scgi_port localhost:5000
+scgi_port = localhost:5000
 
 # Maximum and minimum number of peers to connect to per torrent.
 #min_peers = 40
