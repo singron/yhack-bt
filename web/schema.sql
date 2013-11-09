@@ -2,6 +2,7 @@ CREATE TABLE Torrents(
 	torrentId serial not null,
     name varchar,
 	torrent bytea,
+    infoHash varchar,
 	primary KEY (torrentId)
 );
 
@@ -31,7 +32,9 @@ CREATE TABLE Jobs(
       speed int,
 	  eta timestamp WITHOUT TIME ZONE,
 	  completed timestamp WITHOUT TIME ZONE,
+      active bool,
 	  userId int references Users(userId), --references Users,
       downloadId int references Downloads(downloadId),
+      hashInfo varchar,
 	  primary KEY (jobId)
 	);

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="assets/css/login.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -16,14 +18,21 @@
   </head>
   <body>
     <?php
-    $activepage = 'index';
+    $activepage ='login';
     include 'navbar.php';
-    ?> 
+    ?>    
 
-    <div class="page-header">
-        <h1>Homepage stuff</h1>
+    <div class="container">
+        <form class="form-login">
+            <h2 class="form-login-heading">Log In</h2>
+            <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
+            <input type="password" class="form-control" placeholder="Password" name="password" required>
+            <label class="checkbox">
+                <input type="checkbox" value="remember me" name="remember"> Remember Me
+            </label>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
+        </form>
     </div>
-
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
