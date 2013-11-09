@@ -111,3 +111,13 @@ peer_exchange = yes
 # before forcing. Overworked systems might need lower values to get a
 # decent hash checking rate.
 #hash_max_tries = 10
+
+# Set every torrent download directory to "$d.get_name.$d.get_hash" subdirectory
+# This avoid problem when multiple started torrents have the same base path
+system.method.insert  = download_dir,simple,"cat=~./torrents/,$d.get_hash="
+system.method.set_key = event.download.inserted,set_new_directory,"d.set_directory=$download_dir="
+# Workaround for "Failed to prepare file list: Could not create directory" bug
+system.method.set_key = event.download.inserted,create_download_dir,"branch=d.is_multi_file=,\"execute={mkdir,-p,--,$download_dir=}\""
+
+# Send e-mail for completed downloads
+# First and only argument to mail.sh is completed file's name (d.get_name)
