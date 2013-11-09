@@ -1,4 +1,46 @@
-<?php require('model.php'); ?>
+<?php 
+require('controller.class.php');
+
+$regerror = false;
+$nouser = false;
+$noemail = false;
+$nopassword = false;
+$nopasswordconfirm = false;
+$passwordmismatch = false;
+if(isset($_POST['submitbutton'])){
+    if(!isset($_POST['username'])){
+        $regerror = true;
+        $nouser = true;
+    }
+    if(!isset($_POST['email'])){
+        $regerror = true;
+        $noemail = true;
+    }
+    if(!isset($_POST['password'])){
+        $regerror = true;
+        $nopassword = true;
+    }
+    if(!isset($_POST['password_confirm'])){
+        $regerror = true;
+        $nopasswordconfirm = true;
+    }
+    if(!($nopassword || $nopasswordconfirm) && strcmp($_POST['password'], $_POST['password_confirm'])!=0){
+        $regerror = true;
+        $passwordmismatch = true;
+    }
+    
+    if (User::existsUserWithEmail($_POST['email']) == 1){
+			 $regerror = true;
+	 }
+	 
+
+    
+    if(!$regerror){
+		$u = Controller::createUser($_POST['email'], $_POST['password']);
+        header('Location: index.php?&registered=true');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -20,15 +62,41 @@
     $activepage = 'register';
     include 'navbar.php';
     ?>    
+   
     
+
     <div class="container">
-        <form class="form-register">
+        <?php if($regerror): ?>
+        <div class="bs-callout bs-callout-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <ul>
+                <?php 
+                if($nouser){
+                    echo '<li>No username specified.</li>';
+                }
+                if($noemail){
+                    echo '<li>No email given.</li>';
+                }
+                if($nopassword){
+                    echo '<li>No password given.</li>';
+                }
+                if($nopasswordconfirm){
+                    echo '<li>No password confirm given.</li>';
+                }
+                if($passwordmismatch){
+                    echo '<li>Passwords do not match.</li>';
+                }
+                ?>
+            </ul>
+        </div>
+        <?php endif; ?>
+        <form class="form-register" action="register.php" method="post">
             <h2 class="form-register-heading">Register</h2>
             <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
             <input type ="text" class="form-control" placeholder="Email Address" name="email" required>
             <input type="password" class="form-control" placeholder="Password" name="password" requried>
             <input type="password" class="form-control" placeholder="Confirm Password" name="password_confirm" required>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" name="submitbutton" >Register</button>
         </form>
     </div>
     
