@@ -1,10 +1,10 @@
 <?
 
-include_once('db.php')
+include_once('db.php');
 
 class Job {
 	public $jobId;
-	public $torrent;
+	public $torrentId;
 	public $added;
 	public $bid;
 	public $downloaded;
@@ -29,6 +29,7 @@ class Job {
 		$j->bid = $bid;
 		$j->billed = false;
 		$j->completed = false;
+
 		$j->active = false;
 		$db = Database::getDB();
 		$db->insertRow('Jobs', "torrentId, userId, bid", "$j->torrentId, $j->userId,$j->bid", 'jobId');
@@ -53,6 +54,7 @@ class Job {
 		$this->eta = $record->eta;
 		$this->speed = $record->speed;
 		$this->completed = $record->completed;
+		$this->jobId = $record->jobid;
 		$this->userId = $record->userid;
 	}
 	
