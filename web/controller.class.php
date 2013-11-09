@@ -107,14 +107,23 @@
 				// Error
 		}
 		
-		public static function authenticate(){
+		public static function authenticate($u = NULL, $password = NULL){
 			if (isset($_COOKIE['email'])){
-				$u = User::getUserByEmail($_COOKIE['email']);
+				if (!$u) $u = User::getUserByEmail($_COOKIE['email']);
 				Controller::loginUser($u, $_COOKIE['hash']);
 				return $u;
 			}
 			else {
-				header("Location: login.php");
+				if ($u && $password){
+					if ($u->checkLogin($password)){
+					 	setcookie('hash', $user->hash, $past); 
+						Controller::loginUser($u);
+					}
+					else {
+						header("Location: login.php");
+					}
+				}
+				else header("Location: login.php");
 			}
 		}
 	}
