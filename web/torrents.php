@@ -7,8 +7,9 @@ date_default_timezone_set('America/New_York');
 
 function formatBytes($size, $precision = 2)
 {
+    if($size==0) return 0;
     $base = log($size) / log(1024);
-    $suffixes = array('', 'k', 'M', 'G', 'T');   
+    $suffixes = array('', 'K', 'M', 'G', 'T');   
 
     return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
 }
@@ -96,7 +97,7 @@ function formatBytes($size, $precision = 2)
                         <td></td>
                         <td></td>
                     <?php else: ?>
-                        <td><?php if($job->speed!=0){ echo formatBytes($job->speed), '/s';} ?></td>
+                        <td><?php echo formatBytes($job->speed), '/s' ?></td>
                         <td><?php echo $job->eta ?></td>
                         <td></td>
                     <?php endif; ?>
