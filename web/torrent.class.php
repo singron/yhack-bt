@@ -22,24 +22,34 @@ class Torrent {
 	
 	public function createTorrentFromFile($name, $torrentPath){
 		$db = Database::getDB();
- 		$data = file_get_contents($torrentPath);
+        $data = pg_escape_bytea(file_get_contents($torrentPath));
 		$this->name = $name;
-	    $db->insertRow("Torrents", 'torrentid,torrent,name' , "DEFAULT,'$data','$name'", 'torrentId', false);
 
-        $res = $db->getRow("Torrents", "torrentid", "torrent=$data");
+        $res = $db->getRow("Torrents", "name='$name'");
         $row = pg_fetch_row($res);
-		$t->torrentId = $row[0];
+        if (!$row) {
+            $db->insertRow("Torrents", 'torrent,name' , "'$data','$name'", 'torrentId', false);
+
+            $res = $db->getRow("Torrents", "torrent='$name'");
+            $row = pg_fetch_row($res);
+        }
+        $this->torrentId = $row[0];
 	}
 
 	public function createTorrentFromMagnet($magnetLink){
 		$db = Database::getDB();
 		$this->manget_link = $magnetLink;
-		$db->insertRow("Torrents", 'torrentid,magnet_link', "DEFAULT,'$magnetLink'", 'torrentId', false);
 
         $res = $db->getRow("Torrents", "magnet_link='$magnetLink'");
         $row = pg_fetch_row($res);
-		$this->torrentId = $row[0];
-    }
+        if (!$row) {
+            $db->insertRow("Torrents", 'torrentid,magnet_link', "DEFAULT,'$magnetLink'", 'torrentId', false);
+
+            $res = $db->getRow("Torrents", "magnet_link='$magnetLink'");
+            $row = pg_fetch_row($res);
+        }
+        $this->torrentId = $row[0];
+      }
 
     public function createJob($user) {
         $db = Database::GetDB();

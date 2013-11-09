@@ -29,13 +29,13 @@ date_default_timezone_set('America/New_York');
        include 'navbar.php'; 
        ?>
         <div class ="upload">
-            <form class="form-upload" action="upload.php" method="post" role="form">
+            <form class="form-upload" action="add_torrent.php" method="post" role="form" enctype="multipart/form-data">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary" id="torrent_btn">
-                        <input type="radio" name="torrenttype" id="torrentradio">Torrent
+                        <input type="radio" name="torrent_enabled" id="torrentradio">Torrent
                     </label>
                     <label class="btn btn-primary" id="magnet_btn">
-                        <input type="radio" name="torrenttype" id="magnetradio">Magnet
+                        <input type="radio" name="magnet_enabled" id="magnetradio">Magnet
                     </label>
                 </div>
                 <div class="upload-torrent" id="torrent-div">
@@ -44,6 +44,7 @@ date_default_timezone_set('America/New_York');
                 <div class="upload-magnet" id="magnet-div">
                     <input type="text" class="form-control" name="magnet_link" placeholder="Magnet link">
                 </div>
+                <input id="select" type="hidden" name="type" value="file" />
                 <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
             </form>
         </div>
@@ -131,10 +132,12 @@ date_default_timezone_set('America/New_York');
                     $("#magnet_btn").click(function() {
                         document.getElementById('magnet-div').style.display = "block";
                         document.getElementById('torrent-div').style.display = "none";
+                        $("input#select").val("magnet");
                     });
                     $("#torrent_btn").click(function() {
                         document.getElementById('torrent-div').style.display = "block";
                         document.getElementById('magnet-div').style.display = "none";
+                        $("input#select").val("file");
                     });
                 });                
         </script> 
