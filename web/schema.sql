@@ -42,5 +42,3 @@ CREATE TABLE Jobs(
 );
 	
 	
-	
-INSERT INTO Torrents (name, torrent, infoHash) VALUES ("Jimmy Bean" )

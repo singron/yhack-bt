@@ -128,6 +128,12 @@ function formatBytes($size, $precision = 2)
                                                 for (var job in jobs){
                                                         $("#torrents tr .progress")[job].style.width = 1.00 * jobs[job]["downloaded"] / jobs[job]["size"];
                                                         $("#torrents tr .progress span")[job].innerHTML = Math.round(100*(jobs[job]["downloaded"] / jobs[job]["size"]),1) + "%";
+														if(!$("#torrents tr")[jobs + 1] || !$("#torrents tr")[jobs + 1].children){
+															continue;
+														}
+														console.log("Bitch")
+														$("#torrents tr")[jobs + 1].children[5] = jobs[job]["speed"];
+														$("#torrents tr")[jobs + 1].children[6] = jobs[job]["eta"];
                                                 }
                                 setTimeout(function() {
                                     refresh();
