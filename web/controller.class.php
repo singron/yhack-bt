@@ -126,12 +126,22 @@
 						Controller::loginUser($u);
 					}
 					else {
-						header("Location: login.php");
+						return NULL;
 					}
 				}
-				else header("Location: login.php");
+				else return NULL;
 			}
 		}
+
+        public static function logout($u = NULL){
+            if (isset($_COOKIE['email']))   if (!$u) $u = User::getUserByEmail($_COOKIE['email']);
+            session_id($u->sessionId);
+            $u->loggedIn = false;
+		    $past = time() - 100; 
+	 	    setcookie("email", 'gone', $past); 
+		    setcookie("hash", 'gone', $past);
+        }
 	}
+
 
 ?>

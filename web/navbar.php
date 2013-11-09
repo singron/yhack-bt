@@ -1,3 +1,7 @@
+    <?
+    require_once('controller.class.php');
+    if(!isset($user)) $user = Controller::authenticate();
+    ?>
     <div class="navbar navbar-default" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -11,12 +15,16 @@
             </div>
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li <?php if(strcmp($activepage,'index')==0): ?> class="active" <?php endif; ?>><a href="index.php">Home</a></li>
-                    <li<?php if(strcmp($activepage,'torrents')==0): ?> class="active" <?php endif; ?>><a href="torrents.php">Torrents</a></li> 
+                    <li <? if(strcmp($activepage,'index')==0): ?> class="active" <? endif; ?>><a href="index.php">Home</a></li>
+                    <li<? if(strcmp($activepage,'torrents')==0): ?> class="active" <? endif; ?>><a href="torrents.php">Torrents</a></li> 
                 </ul> 
                 <ul class="nav navbar-nav navbar-right">
-                   <li<?php if(strcmp($activepage,'login')==0): ?> class="active" <?php endif; ?>><a href="login.php">Log In</a></li>
+                <? if($user == NULL): ?>
+                   <li<? if(strcmp($activepage,'login')==0): ?> class="active" <? endif; ?>><a href="login.php">Log In</a></li>
                    <li<?php if(strcmp($activepage,'register')==0): ?> class="active" <?php endif; ?>><a href="register.php">Register</a></li>
+                <? else: ?>
+                   <li><a href="logout.php">Log Out</a></li> 
+                <? endif; ?>
                 </ul>
             </div>
         </div>
