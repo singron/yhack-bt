@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-
+    
+    <link href="assets/css/register.css" rel="stylesheet">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -16,15 +17,21 @@
   </head>
   <body>
     <?php
-    $activepage = 'index';
+    $activepage = 'register';
     include 'navbar.php';
-    ?> 
-
-    <div class="page-header">
-        <h1>Homepage stuff</h1>
+    ?>    
+    
+    <div class="container">
+        <form class="form-register">
+            <h2 class="form-register-heading">Register</h2>
+            <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
+            <input type ="text" class="form-control" placeholder="Email Address" name="email" required>
+            <input type="password" class="form-control" placeholder="Password" name="password" requried>
+            <input type="password" class="form-control" placeholder="Confirm Password" name="password_confirm" required>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+        </form>
     </div>
-
-
+    
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
