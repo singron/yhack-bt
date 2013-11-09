@@ -1,9 +1,20 @@
 <?
-	require('controller.class.php');
-	if (!$_POST['mode']) exit(0);
+	include('controller.class.php');
+	$_POST = $_GET;
+	if (!array_key_exists("mode", $_POST)) exit(0);
 	switch($_POST['mode']){
 		case "createUser":
-			return json_encode(Controller::createUser($_POST['email'], $_POST['password']));
+			if (User::existsUserWithEmail($_POST['email']) == 1){
+				echo "ERROR";
+				exit(-1);
+			}
+			$u = Controller::createUser($_POST['email'], $_POST['password']);
+			if ($u == -1){
+				//error
+			}
+			else {
+				echo json_encode($u);
+			}
 		break;
 		
 		case "startJob":
@@ -23,8 +34,8 @@
 		break;
 		
 		case "getAvailableJobsForUser":
-			return json_encode(Controller::getAvailableJobsForUser($_POST['userId']));
-		break;
+			echo json_encode(Controller::getAvailableJobsForUser($_POST['userId']));
+		break; 
 		
 		case "createJobAndTorrent":
 			$tid = Controller::createTorrent($_FILE['torrent']['name'], $_FILE['torrent']['tmp_name']);

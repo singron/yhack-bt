@@ -1,4 +1,4 @@
-<?php require('model.php'); ?>
+<?php require('controller.class.php'); ?>
 <!DOCTYPE html>
 <html>
   <head>

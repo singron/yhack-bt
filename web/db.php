@@ -40,7 +40,6 @@ class Database {
 			}
 			return self::$db;
 		}
-	}
 	
         /**
          * @var int
@@ -55,7 +54,7 @@ class Database {
     /**
      * @var resource Database resource
      */
-    var $db;
+    var $_db;
     
     /**
      * Connect to the database.
@@ -71,7 +70,7 @@ class Database {
                         $config['password']
                 );
                 
-        if ($this->db = pg_pconnect($connString)) {
+        if ($this->_db = pg_pconnect($connString)) {
             return TRUE;
             }
                 return FALSE;
@@ -81,7 +80,7 @@ class Database {
      * Close the database connection.
      */
     function close() {
-        pg_close($this->db);
+        pg_close($this->_db);
     }
     
     /**
@@ -91,7 +90,7 @@ class Database {
      */
     function getColumns($table) {
             $qs = sprintf('SELECT * FROM information_schema.columns WHERE table_name =\'%s\'', $table);
-                return pg_query($this->db, $qs);
+                return pg_query($this->_db, $qs);
     }
     
     /**
@@ -101,8 +100,9 @@ class Database {
      * @return resource A resultset resource
      */
     function getRow($table, $where) {
-    			$where = pg_escape_string($where);
+
 		$table = pg_escape_string($table);
+          $where = str_replace(',',"','",$where);
 
         $result = pg_query(sprintf('SELECT * FROM %s WHERE %s', $table, $where));   
             if ($result) {
@@ -118,7 +118,7 @@ class Database {
      * @return resource A resultset resource
      */
     function getTable($primary, $table) {
-        $result = pg_query($this->db, sprintf('SELECT %s FROM %s', $primary, $table));  
+        $result = pg_query($this->_db, sprintf('SELECT %s FROM %s', $primary, $table));  
         if ($result) {
             $this->lastQueryResultResource = $result;
         }
@@ -130,7 +130,7 @@ class Database {
      * @return resource A resultset resource
      */
     function getDatabase() {
-        return pg_query($this->db, 'SELECT table_name FROM information_schema.tables WHERE table_schema=\'public\'');   
+        return pg_query($this->_db, 'SELECT table_name FROM information_schema.tables WHERE table_schema=\'public\'');   
     }
         
     /**
@@ -151,7 +151,7 @@ class Database {
                                 $i,
                                 $table
                         );
-                $result = pg_query($this->db, $query);
+                $result = pg_query($this->_db, $query);
             $row = pg_fetch_assoc($result);
             if ($row) {
                 $primary[] = $row['attname'];
@@ -176,7 +176,7 @@ class Database {
         array_map( "pg_escape_string", $values );
         $where = pg_escape_string($where);
         $qs = sprintf('UPDATE %s SET %s WHERE %s', $table, $values, $where);
-        $result = pg_query($this->db, $qs);       
+        $result = pg_query($this->_db, $qs);       
         if ($result) {
             $this->lastQueryResultResource = $result;
         }
@@ -192,7 +192,7 @@ class Database {
      */
      
      function query($q){
-     	$result = pg_query($this->db, $q);
+     	$result = pg_query($this->_db, $q);
         $lastInsertPKeys = pg_fetch_row($result);
         $this->lastInsertPKeys = $lastInsertPKeys;
                 
@@ -235,7 +235,7 @@ class Database {
     function deleteRow($table, $where) {
 		$where = pg_escape_string($where);
 		$table = pg_escape_string($table);
-        $result = pg_query(sprintf('DELETE FROM %s WHERE %s', $table, $where), $this->db);   
+        $result = pg_query(sprintf('DELETE FROM %s WHERE %s', $table, $where), $this->_db);   
         if ($result) {
             $this->lastQueryResultResource = $result;
         }

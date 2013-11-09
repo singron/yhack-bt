@@ -1,6 +1,6 @@
 <?
 
-include_once('db.php')
+include_once('db.php');
 
 class User {
 	public $userId;
@@ -25,10 +25,18 @@ class User {
 		$u->credit = $credit;
 		$u->email = $email;
 		$db = Database::getDB();
-		$db->insertRow("Users", "email, hash, salt", "'$u->email', '$u->hash' , '$u->salt'" , 'userId');
+		$r = $db->insertRow("Users", "email, hash, salt", "'$u->email', '$u->hash' , '$u->salt'" , 'userId');
 		$u->userId = $db->lastInsertId();
 		
 		return $u;
+	}
+	
+	public static function existsUserWithEmail($email){
+		$db = Database::getDB();
+		$u = $db->getRow("Users", "email = '$email'");
+		$v = $db->numRows($u);
+		return ($v == 0);
+
 	}
 	
 	function __construct($record = NULL){
