@@ -2,6 +2,7 @@ CREATE TABLE Torrents(
 	torrentId serial not null,
     name varchar,
 	torrent bytea,
+	infohash varchar,
 	primary KEY (torrentId)
 );
 
