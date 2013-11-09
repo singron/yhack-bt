@@ -3,6 +3,7 @@
 import bencode
 import rtorrent
 import urlparse
+import datetime
 from models import Jobs,Torrents
 from sqlalchemy import create_engine,and_,func,select,update,bindparam,not_,or_
 
@@ -73,8 +74,8 @@ def main():
 		active_queue = rt.get_active_infohashes()
 		if active_queue:
 			for infohash in active_queue:
-				completed_bytes = rt.get_completed_bytes()
-				size_bytes = rt.get_size_bytes()
+				completed_bytes = rt.get_completed_bytes(infohash)
+				size_bytes = rt.get_size_bytes(infohash)
 				if completed_bytes == size_bytes:
 					# Torrent is done
 					move_completed_download(rt, infohash)
@@ -85,7 +86,8 @@ def main():
 					down_rate = rt.get_down_rate(infohash)
 					completed_bytes = rt.get_completed_bytes(infohash)
 					size = rt.get_size_bytes(infohash)
-					eta = (size - completed_bytes) / down_rate
+					eta = datetime.timedelta(seconds=((size - completed_bytes) /
+						down_rate))
 					engine.execute(update_qry,\
 							infohash=infohash,\
 							down_rate=down_rate,\
