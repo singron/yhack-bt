@@ -21,13 +21,14 @@ Downloads = Table('Downloads', metadata,
     Column('downloadId', Integer, primary_key=True),
     Column('start_time', DateTime(False)),
     Column('ip', String, nullable=False),
+    Column('link', String, nullable=False),
 )
 
 Torrents = Table('Torrents', metadata,
     Column('torrentId', Integer, primary_key=True),
     Column('name', String),
     Column('torrent', LargeBinary),
-    Column('infoHash', String),
+    Column('infoHash', String, unique=True)
 )
 
 Users = Table('Users', metadata,
