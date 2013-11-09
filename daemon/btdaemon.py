@@ -143,6 +143,7 @@ def main():
 							completed_bytes=completed_bytes,\
 							size=size)
 
+		active_queue = rt.get_active_infohashes()
 		new_torrents = []
 		if not active_queue:
 			# Add more torrents
@@ -175,6 +176,7 @@ def main():
 				print "magnet"
 				rt.add_torrent_magnet(t.magnet_link, t.infohash)
 
+		active_queue = rt.get_active_infohashes()
 		if active_queue:
 			# remove stale torrents
 			check_qry = select([Torrents])\
