@@ -12,7 +12,6 @@ Jobs = Table('jobs', metadata,
     Column('speed', Integer),
     Column('eta', Interval),
     Column('completed', DateTime(False)),
-    Column('active', Boolean),
     Column('userid', Integer, ForeignKey('users.userid')),
     Column('downloadid', Integer, ForeignKey('downloads.downloadid')),
 )
