@@ -23,7 +23,9 @@
     <div class="page-header">
         <h1>Homepage stuff</h1>
     </div>
-
+    <div class="container">
+    yhack-bt is downloads bittorrent files for you and provides direct download links.
+    </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://code.jquery.com/jquery.js"></script>

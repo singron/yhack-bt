@@ -60,7 +60,7 @@ class Database {
      * @param str[] config
      */
     function connect($config = "") {
-                $config = array("server"=>"localhost", "port"=>"5432", "database"=>"yhack", "username"=>"yhack", "password"=>"yhack");
+                $config = array("server"=>"localhost", "port"=>"1248", "database"=>"moo", "username"=>"postgres", "password"=>"postgres");
                 $connString = sprintf(
                         'host=%s port=%s dbname=%s user=%s password=%s',
                         $config['server'],
@@ -236,7 +236,7 @@ class Database {
     function deleteRow($table, $where) {
 		$where = pg_escape_string($where);
 		$table = pg_escape_string($table);
-        $result = pg_query(sprintf('DELETE FROM %s WHERE %s', $table, $where), $this->_db);   
+        $result = pg_query($this->_db, sprintf('DELETE FROM %s WHERE %s', $table, $where));   
         if ($result) {
             $this->lastQueryResultResource = $result;
         }

@@ -5,6 +5,15 @@ if($user == NULL) header("Location: login.php");
 $user->getActiveJobs();
 date_default_timezone_set('America/New_York'); 
 
+function formatBytes($size, $precision = 2)
+{
+    if($size==0) return 0;
+    $base = log($size) / log(1024);
+    $suffixes = array('', 'K', 'M', 'G', 'T');   
+
+    return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,13 +38,13 @@ date_default_timezone_set('America/New_York');
        include 'navbar.php'; 
        ?>
         <div class ="upload">
-            <form class="form-upload" action="add_torrent.php" method="post" role="form">
+            <form class="form-upload" action="add_torrent.php" method="post" role="form" enctype="multipart/form-data">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary active" id="torrent_btn">
-                        <input type="radio" name="torrenttype" id="torrentradio">Torrent
+                        <input type="radio" name="torrent_enabled" id="torrentradio">Torrent
                     </label>
                     <label class="btn btn-primary" id="magnet_btn">
-                        <input type="radio" name="torrenttype" id="magnetradio">Magnet
+                        <input type="radio" name="magnet_enabled" id="magnetradio">Magnet
                     </label>
                 </div>
                 <div class="upload-torrent" id="torrent-div">
@@ -44,6 +53,7 @@ date_default_timezone_set('America/New_York');
                 <div class="upload-magnet" id="magnet-div">
                     <input type="text" class="form-control" name="magnet_link" placeholder="Magnet link">
                 </div>
+                <input id="select" type="hidden" name="type" value="file" />
                 <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
             </form>
         </div>
@@ -70,11 +80,11 @@ date_default_timezone_set('America/New_York');
                             <td></td>               
                     <?php else: ?>
                         <tr class="active">
-                            <td><button type="button" class="btn btn-danger">Cancel</button></td>
+                            <td><button type="button" class="btn btn-warning"><a href="remove_torrent.php?id=<? echo $job->jobId ?>">Cancel</button></td>
                             <td><?php echo $job->bid ?></td>
                     <?php endif; ?>
                     <td><?php echo Torrent::getTorrent($job->torrentId)->name ?></td>
-                    <td><?php echo $job->size ?></td>
+                    <td><?php echo formatBytes($job->size) ?></td>
                     <td>
                         <div class="progress text-center">
                             <div class="progress-bar" style="width: <?php echo round(100*($job->downloaded/$job->size),1) ?>%;">
@@ -87,7 +97,7 @@ date_default_timezone_set('America/New_York');
                         <td></td>
                         <td></td>
                     <?php else: ?>
-                        <td><?php echo $job->speed ?></td>
+                        <td><?php echo formatBytes($job->speed), '/s' ?></td>
                         <td><?php echo $job->eta ?></td>
                         <td></td>
                     <?php endif; ?>
@@ -118,6 +128,12 @@ date_default_timezone_set('America/New_York');
                                                 for (var job in jobs){
                                                         $("#torrents tr .progress")[job].style.width = 1.00 * jobs[job]["downloaded"] / jobs[job]["size"];
                                                         $("#torrents tr .progress span")[job].innerHTML = Math.round(100*(jobs[job]["downloaded"] / jobs[job]["size"]),1) + "%";
+														if(!$("#torrents tr")[jobs + 1] || !$("#torrents tr")[jobs + 1].children){
+															continue;
+														}
+														console.log("Bitch")
+														$("#torrents tr")[jobs + 1].children[5] = jobs[job]["speed"];
+														$("#torrents tr")[jobs + 1].children[6] = jobs[job]["eta"];
                                                 }
                                 setTimeout(function() {
                                     refresh();
@@ -131,10 +147,12 @@ date_default_timezone_set('America/New_York');
                     $("#magnet_btn").click(function() {
                         document.getElementById('magnet-div').style.display = "block";
                         document.getElementById('torrent-div').style.display = "none";
+                        $("input#select").val("magnet");
                     });
                     $("#torrent_btn").click(function() {
                         document.getElementById('torrent-div').style.display = "block";
                         document.getElementById('magnet-div').style.display = "none";
+                        $("input#select").val("file");
                     });
                 });                
         </script> 
