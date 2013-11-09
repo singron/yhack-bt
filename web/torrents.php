@@ -29,7 +29,7 @@ date_default_timezone_set('America/New_York');
        include 'navbar.php'; 
        ?>
         <div class ="upload">
-            <form class="form-upload" action="upload.php" method="post" role="form">
+            <form class="form-upload" action="add_torrent.php" method="post" role="form">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary active" id="torrent_btn">
                         <input type="radio" name="torrenttype" id="torrentradio">Torrent
