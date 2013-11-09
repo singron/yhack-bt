@@ -38,6 +38,12 @@ class User {
 		return (array_key_exists("userid", $v)) ? 1 : 0;
 
 	}
+	public static function getUserByEmail($email){
+		$db = Database::getDB();
+		$db->getRow( "Users", "email = $email" );
+		return new User($db->nextRecord());
+	}
+	
 	
 	function __construct($record = NULL){
 		if ($record){

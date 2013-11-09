@@ -2,6 +2,7 @@ import xmlrpclib
 from time import time
 
 class RTorrent:
+<<<<<<< HEAD
     def __init__(self):
         self.proxy = xmlrpclib.ServerProxy("http://localhost:500")
         self.delay = 0
