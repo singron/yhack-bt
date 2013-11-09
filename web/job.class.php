@@ -10,7 +10,6 @@ class Job {
 	public $size;
 	public $speed;
 	public $eta;
-	public $active;
 	public $completed;
 	public $userId;
 	public $billed;
@@ -29,7 +28,6 @@ class Job {
 		$j->billed = false;
 		$j->completed = false;
 		$j->added = date(DATE_RFC2822);
-		$j->active = false;
 		$db = Database::getDB();
 		$db->insertRow('Jobs', "torrentId, userId, bid", "$j->torrentId, $j->userId,$j->bid", 'jobId');
 		$j->jobId = $db->lastInsertId();
@@ -49,7 +47,6 @@ class Job {
 		$this->downloaded = $record->downloaded;
 		$this->size = $record->size;
 		$this->billed = $record->billed;
-		$this->active = $record->active;
 		$this->eta = $record->eta;
 		$this->speed = $record->speed;
 		$this->completed = $record->completed;
@@ -58,13 +55,11 @@ class Job {
 	}
 	
 	public function pause(){
-		$this->active = false;
 		$this->update();
 	}
 	
 	public function start(){
 		if ($this->size == 0) return -1;
-		$this->active = true;
 		$this->update();
 		
 		return 0;
