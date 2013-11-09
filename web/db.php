@@ -3,9 +3,9 @@
 class Database
     {
     var $Host     = "localhost";        // Hostname of our MySQL server.
-    var $Database = "moo";         // Logical database name on that server.
-    var $User     = "postgres";             // User and Password for login.
-    var $Password = "postgres";
+    var $Database = "yhack";         // Logical database name on that server.
+    var $User     = "yhack";             // User and Password for login.
+    var $Password = "yhack";
  
     var $Link_ID  = 0;                  // Result of mysql_connect().
     var $Query_ID = 0;                  // Result of most recent mysql_query().

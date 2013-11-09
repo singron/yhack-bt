@@ -4,11 +4,11 @@ require('db.php');
 class Controller {
 	static public $db = NULL;
 	public static function getDB(){
-		if (!$db) {
-			Controller::$db = new Database();
-			Controller::$db->connect;
+		if (!self::$db) {
+			self::$db = new Database();
+			self::$db->connect;
 		}
-		return Controller::$db;
+		return self::$db;
 	}
 }
 
@@ -36,6 +36,8 @@ class User {
 		
 		$db = Controller::getDB();
 		$db->query("INSERT into Users (email, hash, salt) VALUES ('$u->email', '$u->hash', '$u->salt')");
+		$u->userId = $db->lastId();
+		
 		return $u;
 	}
 	
@@ -78,7 +80,6 @@ class User {
 }
 
 class Job {
-	public $torrentId;
 	public $torrent;
 	public $added;
 	public $bid;
@@ -94,15 +95,14 @@ class Job {
 		return new Job($db->singleRecord());
 	}
 	
-	public static function createJob( $torrentId, $userId, $size, $bid ){
+	public static function createJob( $torrentId, $userId, $bid ){
 		$j = new Job();
 		$j->torrentId = $torrentId;
 		$j->userId = $userId;
 		$j->size = $size;
 		$j->bid = $bid;
-		
 		$db = Controller::getDB();
-		$db->query("INSERT into Jobs (torrentId, userId, size, bid) VALUES ('$j->torrentId', '$j->userId', '$j->size', '$j->bid')");
+		$db->query("INSERT into Jobs (torrentId, userId, bid) VALUES ('$j->torrentId', '$j->userId',  '$j->bid')");
 		return $j;
 	}
 
@@ -122,6 +122,7 @@ class Job {
 		$this->completed = $record->completed;
 		$this->userId = $record->userId;
 	}
+	
 
 	public function progress() { 
 		return $this->downloaded / (float)$this->size;
@@ -147,15 +148,28 @@ class Job {
 		$j->torrentId = $jid;
 		$j->updateProgress($downloaded, $eta);
 	}
-	
- 
 }
 
 class Torrent {
 	public $torrentId;
-	public $torrent;
+	public $torrentPath;
 	public $magnetLink;
+	
+	public static function createTorrent($torrentPath, $magnet = ""){
+		$db = Controller::getDB();
+ 		$data = bin2hex(file_get_contents($torrentPath));
+		$t = new Torrent;
+		$db->query("INSERT into Torrents (torrent, magnetLink) VALUES ($data, $magnet)");
+		$t->torrentId = $db->lastId();
+		$t->torrentPath = $torrentPath;
+		$t->magnet = $magnet;
+		return $t;
+	}
 }
+
+$t = Torrent::createTorrent("/var/www/mikey/db.php");
+$u = User::createUser("micmoo@me.com", "luigi193", 100);
+$j = Job::createJob($t->torrentId, $u->userId, 10);
 
 
 	?>
