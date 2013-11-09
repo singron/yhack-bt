@@ -19,7 +19,7 @@ Jobs = Table('jobs', metadata,
 Downloads = Table('downloads', metadata,
     Column('downloadid', Integer, primary_key=True),
     Column('start_time', DateTime(False)),
-    Column('ip', String, nullable=False),
+    Column('ip', String),
     Column('link', String, nullable=False),
 )
 
