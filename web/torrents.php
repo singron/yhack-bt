@@ -23,12 +23,14 @@ $user = Controller::authenticate();
        include 'navbar.php'; 
        ?>
        <div class ="upload">
-            <form class="form-upload" action="upload.php" method="post" role="form">
-                <label for="torrentfile">Torrent File</label>
-                <input type="file" id="torrentfile">
+            <form class="form-upload" action="add_torrent.php" method="post" enctype="multipart/form-data">
+                <label for="file">Torrent File</label>
+                <input type="file" id="file" name="file">
+                <label for="magnet_link">Magnet Link</label>
+                <input type="text" name="magnet_link" id="magnet_link">
                 <button class="btn btn-primary" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
             </form>
-        </div
+        </div>
         <div class="torrents">
           <table class="table">
             <thead>
