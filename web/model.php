@@ -69,7 +69,7 @@ class User {
 	public function update(){
 		if (!$this->userId) return -1;
 		$db = Controller::getDB();
-		$db->query("UPDATE Users set userId = '$this->userId', email = '$this->userId', hash = '$this->userId', salt = '$this->userId', credit='$this->credit' WHERE userId = '$this->userId'")		
+		$db->query("UPDATE Users set userId = '$this->userId', email = '$this->userId', hash = '$this->userId', salt = '$this->userId', credit='$this->credit' WHERE userId = '$this->userId'");		
 		foreach ($this->jobs as $job){
 			$job->update();
 		}
@@ -130,7 +130,7 @@ class Job {
 	public function update(){
 		if (!$this->torrentId) return -1;
 		$db = Controller::getDB();
-		$db->query("UPDATE Job set torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size', eta='$this->eta', completed='$this->completed',  WHERE torrentId = '$this->torrentId'")
+		$db->query("UPDATE Job set torrentId = '$this->torrentId', added = '$this->added', bid = '$this->bid', downloaded = '$this->downloaded', size='$this->size', eta='$this->eta', completed='$this->completed',  WHERE torrentId = '$this->torrentId'");
 		if ($this->torrent) 
 			$torrent->update();
 	}
@@ -139,14 +139,9 @@ class Job {
 		$this->downloaded = $downloaded;
 		$this->eta = $eta;
 		$db = Controller::getDB();
-		$db->query("UPDATE jobs SET downloaded = $downloaded, eta= $eta WHERE torrentId = $this->torrentId")
+		$db->query("UPDATE jobs SET downloaded = $downloaded, eta= $eta WHERE torrentId = $this->torrentId");
 	}
 	
-	public static function updateProgress($jid, $downloaded, $eta){
-		$j = new Job();
-		$j->torrentId = $jid;
-		$j->updateProgress($downloaded, $eta);
-	}
 	
  
 }
