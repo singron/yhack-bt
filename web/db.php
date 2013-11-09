@@ -212,7 +212,6 @@ class Database {
           $values = str_replace("''","'",$values);
           $values = str_replace("''","'",$values);
 
-		var_dump($values);
 
 		  
         $qs = sprintf(
