@@ -1,8 +1,8 @@
 <?
-	require('db.php');
-	require('user.class.php');
-	require('job.class.php');
-	require('torrent.class.php');
+	include_once('db.php');
+	include_once('user.class.php');
+	include_once('job.class.php');
+	include_once('torrent.class.php');
 	
 	class Controller {
 		public static function getUser($id){

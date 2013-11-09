@@ -1,6 +1,5 @@
 <?
 
-include_once('db.php');
 
 class Torrent {
 	public $torrentId;

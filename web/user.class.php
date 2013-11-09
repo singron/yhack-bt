@@ -1,6 +1,5 @@
 <?
 
-include_once('db.php');
 
 class User {
 	public $userId;
@@ -34,8 +33,9 @@ class User {
 	public static function existsUserWithEmail($email){
 		$db = Database::getDB();
 		$u = $db->getRow("Users", "email = '$email'");
-		$v = $db->numRows($u);
-		return ($v == 0);
+		$v = $db->row($u);
+		if ($v == false) return 0;
+		return (array_key_exists("userid", $v)) ? 1 : 0;
 
 	}
 	

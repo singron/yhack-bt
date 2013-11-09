@@ -1,6 +1,5 @@
 <?
 
-include_once('db.php');
 
 class Job {
 	public $jobId;
