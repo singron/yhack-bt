@@ -7,8 +7,9 @@ date_default_timezone_set('America/New_York');
 
 function formatBytes($size, $precision = 2)
 {
+    if($size==0) return 0;
     $base = log($size) / log(1024);
-    $suffixes = array('', 'k', 'M', 'G', 'T');   
+    $suffixes = array('', 'K', 'M', 'G', 'T');   
 
     return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
 }
@@ -39,21 +40,23 @@ function formatBytes($size, $precision = 2)
         <div class ="upload">
             <form class="form-upload" action="add_torrent.php" method="post" role="form" enctype="multipart/form-data">
                 <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary" id="torrent_btn">
+                    <label class="btn btn-primary active" id="torrent_btn">
                         <input type="radio" name="torrent_enabled" id="torrentradio">Torrent
                     </label>
                     <label class="btn btn-primary" id="magnet_btn">
                         <input type="radio" name="magnet_enabled" id="magnetradio">Magnet
                     </label>
                 </div>
-                <div class="upload-torrent" id="torrent-div">
-                    <input type="file" name="file" id="file">
-                </div>
-                <div class="upload-magnet" id="magnet-div">
-                    <input type="text" class="form-control" name="magnet_link" placeholder="Magnet link">
-                </div>
-                <input id="select" type="hidden" name="type" value="file" />
-                <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
+                <div class="well">
+                    <div class="upload-torrent" id="torrent-div">
+                        <input type="file" name="file" id="file">
+                    </div>
+                    <div class="upload-magnet" id="magnet-div">
+                        <input type="text" class="form-control" name="magnet_link" placeholder="Magnet link">
+                    </div>
+                    <input id="select" type="hidden" name="type" value="file" />
+                    <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
+            </div>
             </form>
         </div>
         <div class="torrents">
@@ -96,7 +99,7 @@ function formatBytes($size, $precision = 2)
                         <td></td>
                         <td></td>
                     <?php else: ?>
-                        <td><?php if($job->speed!=0){ echo formatBytes($job->speed), '/s';} ?></td>
+                        <td><?php echo formatBytes($job->speed), '/s' ?></td>
                         <td><?php echo $job->eta ?></td>
                         <td></td>
                     <?php endif; ?>
