@@ -28,6 +28,7 @@ Torrents = Table('torrents', metadata,
     Column('torrentid', Integer, primary_key=True),
     Column('name', String),
     Column('torrent', LargeBinary),
+    Column('magnet_link', String),
     Column('infohash', String, unique=True)
 )
 
