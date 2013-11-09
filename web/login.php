@@ -1,4 +1,23 @@
-<?php require('controller.class.php'); ?>
+<?php
+require('controller.class.php'); 
+$past = time() - 100; 
+setcookie("email", 'gone', $past); 
+setcookie("hash", 'gone', $past); 
+
+if(isset($_POST['submitbutton'])){
+   if(isset($_POST['email']) && User::existsUserWithEmail($_POST['email'])){
+        $user = User::getUserByEmail($_POST['email']);
+
+        if(isset($_POST['password'])) {
+            Controller::loginUser($user, $_POST['password']);
+			header("Location: torrents.php");
+        } 
+   } else {
+
+        //invalid email
+   }
+}
+?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -23,14 +42,14 @@
     ?>    
 
     <div class="container">
-        <form class="form-login">
+        <form class="form-login" action="login.php" method="post">
             <h2 class="form-login-heading">Log In</h2>
-            <input type="text" class="form-control" placeholder="Username" name="username" required autofocus>
+            <input type="text" class="form-control" placeholder="Email" name="email" required autofocus>
             <input type="password" class="form-control" placeholder="Password" name="password" required>
             <label class="checkbox">
                 <input type="checkbox" value="remember me" name="remember"> Remember Me
             </label>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
+            <button class="btn btn-lg btn-primary btn-block" type="submit"i name='submitbutton'>Log In</button>
         </form>
     </div>
 

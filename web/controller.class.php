@@ -10,15 +10,14 @@
 		}
 		
 		public static function loginUser($user, $password=-1){
-			if ($password == -1) $passwrd = $_COOKIE['hash'];
+			if ($password == -1) $password = $_COOKIE['hash'];
 			session_start();
-			if ($password == $user->hash){
+			if ($password == $user->hash || $user->checkLogin($password)){
 				if ($user->sessionId == ""){
 					session_start();
 					$user->setSessionId(session_id());
-				 	setcookie('email', $user->email, $past); 
-				 	setcookie('hash', $user->hash, $past); 
-					echo $_COOKIE['email'];
+				 	setcookie('email', $user->email); 
+				 	setcookie('hash', $user->hash); 
 					$user->loggedIn = true;
 				}
 				else {
@@ -28,12 +27,12 @@
 						$past = time() - 100; 
 					 	setcookie("email", 'gone', $past); 
 					 	setcookie("hash", 'gone', $past); 
-						header("Location: login.php");
 					}
 					else {
 						session_id($user->sessionId);
 						$user->loggedIn = true;
-						echo session_id();
+					 	setcookie('email', $user->email); 
+					 	setcookie('hash', $user->hash); 
 					}
 				}
 			}
@@ -68,6 +67,12 @@
 			$user = User::existsUserWithEmail($email);
 			if ($user == 1) return -1;
 			$user = User::createUser($email, $password);
+			session_start();
+			$user->setSessionId(session_id());
+		 	setcookie('email', $user->email); 
+		 	setcookie('hash', $user->hash); 
+			$user->loggedIn = true;
+		
 			return json_encode($user);
 		}
 		
@@ -116,7 +121,8 @@
 			else {
 				if ($u && $password){
 					if ($u->checkLogin($password)){
-					 	setcookie('hash', $user->hash, $past); 
+					 	setcookie('email', $user->email); 
+					 	setcookie('hash', $user->hash); 
 						Controller::loginUser($u);
 					}
 					else {
