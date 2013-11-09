@@ -69,6 +69,7 @@ if(isset($_POST['submitbutton'])){
         <?php if($regerror): ?>
         <div class="bs-callout bs-callout-danger alert-dismissable">
             <button type="button" class="close" data-dismiss="alert">x</button>
+<<<<<<< HEAD
             <ul>
                 <?php 
                 if($nouser){
@@ -88,6 +89,9 @@ if(isset($_POST['submitbutton'])){
                 }
                 ?>
             </ul>
+=======
+            You suck
+>>>>>>> dcdf41bf6e7c249ef8b8b8f6f4853c2f88df39ac
         </div>
         <?php endif; ?>
         <form class="form-register" action="register.php" method="post">
