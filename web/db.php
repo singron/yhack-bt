@@ -236,7 +236,7 @@ class Database {
     function deleteRow($table, $where) {
 		$where = pg_escape_string($where);
 		$table = pg_escape_string($table);
-        $result = pg_query(sprintf('DELETE FROM %s WHERE %s', $table, $where), $this->_db);   
+        $result = pg_query($this->_db, sprintf('DELETE FROM %s WHERE %s', $table, $where));   
         if ($result) {
             $this->lastQueryResultResource = $result;
         }

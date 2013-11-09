@@ -70,7 +70,7 @@ date_default_timezone_set('America/New_York');
                             <td></td>               
                     <?php else: ?>
                         <tr class="active">
-                            <td><button type="button" class="btn btn-danger">Cancel</button></td>
+                            <td><button type="button" class="btn btn-danger"><a href="remove_torrent.php?id=<? echo $job->jobId ?>">Cancel</button></td>
                             <td><?php echo $job->bid ?></td>
                     <?php endif; ?>
                     <td><?php echo Torrent::getTorrent($job->torrentId)->name ?></td>
