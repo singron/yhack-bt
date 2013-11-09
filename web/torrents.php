@@ -39,10 +39,10 @@ date_default_timezone_set('America/New_York');
                     </label>
                 </div>
                 <div class="upload-torrent" id="torrent-div">
-                    <input type="file" id="torrentfile">
+                    <input type="file" name="file" id="file">
                 </div>
                 <div class="upload-magnet" id="magnet-div">
-                    <input type="text" class="form-control" name="magnetinput" placeholder="Magnet link">
+                    <input type="text" class="form-control" name="magnet_link" placeholder="Magnet link">
                 </div>
                 <button class="btn btn-success" type="submit" name="uploadtorrentbutton">Upload Torrent</button>
             </form>

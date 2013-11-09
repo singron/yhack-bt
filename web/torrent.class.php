@@ -1,10 +1,11 @@
 <?
 
+require_once('db.php');
 
 class Torrent {
 	public $torrentId;
-	public $torrentPath;
 	public $torrent;
+    public $magnet_link;
 	public $name;
 
 	public static function getTorrent($id){
@@ -17,21 +18,35 @@ class Torrent {
 		$t->name = $r->name;
 		
 		return $t;
-		
-		
+	}
+	
+	public function createTorrentFromFile($name, $torrentPath){
+		$db = Database::getDB();
+ 		$data = file_get_contents($torrentPath);
+		$this->name = $name;
+	    $db->insertRow("Torrents", 'torrentid,torrent,name' , "DEFAULT,'$data','$name'", 'torrentId', false);
+
+        $res = $db->getRow("Torrents", "torrentid", "torrent=$data");
+        $row = pg_fetch_row($res);
+		$t->torrentId = $row[0];
 	}
 
-	
-	public static function createTorrent($name, $torrentPath){
+	public function createTorrentFromMagnet($magnetLink){
 		$db = Database::getDB();
- 		$data = bin2hex(file_get_contents($torrentPath));
-		$t = new Torrent;
-		$t->name = $name;
-		$db->insertRow("Torrents", 'torrent,name' , "'$data','$name'", 'torrentId', false);
-		$t->torrentId = $db->lastInsertId();
-		$t->torrentPath = $torrentPath;
-		return $t;
-	}
+		$this->manget_link = $magnetLink;
+		$db->insertRow("Torrents", 'torrentid,magnet_link', "DEFAULT,'$magnetLink'", 'torrentId', false);
+
+        $res = $db->getRow("Torrents", "magnet_link='$magnetLink'");
+        $row = pg_fetch_row($res);
+		$this->torrentId = $row[0];
+    }
+
+    public function createJob($user) {
+        $db = Database::GetDB();
+        $db->insertRow("Jobs", "torrentid, added, billed, completed, userid, downloadid",
+            $this->torrentId . ", NOW(), FALSE, NULL, $user->userId, NULL", 'jobId', false);
+        return $db->lastInsertId();
+    }
 }
 
 ?>
