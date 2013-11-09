@@ -48,5 +48,5 @@ class RTorrent:
 
     def get_active_infohashes(self):
         for key, value in self.delays.iteritems():
-            self.wait(infohash)
+            self.wait(key)
         return self.proxy.download_list()

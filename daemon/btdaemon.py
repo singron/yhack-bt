@@ -69,7 +69,7 @@ def calculate_hashes(engine):
 			engine.execute(update_qry,newhash=infohash,tid=t.torrentid)
 
 def main():
-	queue_size = 50
+	queue_size = 4 
 	engine = create_engine('postgresql://yhack:yhack@localhost:5432/yhack')
 	rt = rtorrent.RTorrent()
 	complete_qry = Jobs.update()\
@@ -164,10 +164,10 @@ def main():
 			print "Add torrent " + t.infohash
 			if t.torrent:
 				print "torrent"
-				rt.add_torrent_file(unhexlify(t.torrent))
+				rt.add_torrent_file(unhexlify(t.torrent), t.infohash)
 			elif t.magnet_link:
 				print "magnet"
-				rt.add_torrent_magnet(t.magnet_link)
+				rt.add_torrent_magnet(t.magnet_link, t.infohash)
 
 		if active_queue:
 			# remove stale torrents
